@@ -1,0 +1,1005 @@
+<!DOCTYPE html>
+<html lang="zh-CN">
+<head>
+<meta charset="utf-8">
+<meta name="viewport" content="width=device-width, initial-scale=1, viewport-fit=cover">
+<title>任务大厅</title>
+<meta name="theme-color" content="#15195c">
+<style>
+:root{--bg:#eef1f5;--card:#fff;--fg:#17212b;--mut:#5e6b7a;--line:#d6dde6;--pri:#2b53d6;--priT:#fff;--gold:#b97f00;--good:#16875a;--goodBg:#e1f5ec;--warn:#b4411f;--chip:#e6ebf4;
+box-sizing:border-box;padding-top:env(safe-area-inset-top,0px);padding-bottom:env(safe-area-inset-bottom,0px);color-scheme:light}
+@media (prefers-color-scheme:dark){:root:not([data-theme="light"]){--bg:#10161e;--card:#19222d;--fg:#e8eef5;--mut:#9aa8b8;--line:#2c394a;--pri:#7b9bff;--priT:#0b1330;--gold:#e0ab3a;--good:#4fd09b;--goodBg:#16362b;--warn:#ff9a78;--chip:#243142;color-scheme:dark}}
+:root[data-theme="dark"]{--bg:#10161e;--card:#19222d;--fg:#e8eef5;--mut:#9aa8b8;--line:#2c394a;--pri:#7b9bff;--priT:#0b1330;--gold:#e0ab3a;--good:#4fd09b;--goodBg:#16362b;--warn:#ff9a78;--chip:#243142;color-scheme:dark}
+html{scroll-padding-top:env(safe-area-inset-top,0px)}
+*{box-sizing:border-box}
+body{margin:0;background:var(--bg);color:var(--fg);font:15px/1.6 "Noto Sans SC","PingFang SC","Microsoft YaHei",Arial,sans-serif}
+.wrap{max-width:1040px;margin:0 auto;padding:14px 14px 40px}
+header{display:flex;justify-content:space-between;align-items:center;gap:10px;flex-wrap:wrap}
+h1{font-size:24px;margin:0;letter-spacing:.04em}
+.sub{margin:2px 0 0;color:var(--mut);font-size:13px}
+.me{background:var(--card);border:1px solid var(--line);border-radius:10px;padding:6px 12px;font-size:13px;color:var(--mut)}
+.me b{font-size:18px;color:var(--gold);margin:0 4px}
+nav{display:flex;gap:6px;margin:14px 0;overflow-x:auto;border-bottom:1px solid var(--line)}
+nav button{font:inherit;background:none;border:0;border-bottom:3px solid transparent;color:var(--mut);padding:8px 12px;cursor:pointer;white-space:nowrap}
+nav button.on{color:var(--fg);font-weight:700;border-color:var(--pri)}
+button:focus-visible,input:focus-visible,select:focus-visible,textarea:focus-visible{outline:3px solid var(--pri);outline-offset:2px}
+.bar{display:flex;gap:8px;flex-wrap:wrap;margin-bottom:12px;align-items:center}
+input,select,textarea{font:inherit;background:var(--card);color:var(--fg);border:1px solid var(--line);border-radius:8px;padding:7px 10px;max-width:100%}
+.grid{display:grid;grid-template-columns:repeat(auto-fill,minmax(290px,1fr));gap:12px}
+.card{background:var(--card);border:1px solid var(--line);border-left:5px solid var(--pri);border-radius:10px;padding:12px 14px;display:flex;flex-direction:column;gap:6px}
+.card.ch{border-left-color:var(--good)}
+.card h3{margin:0;font-size:16px;line-height:1.4}
+.desc{margin:0;color:var(--mut);font-size:13.5px;display:-webkit-box;-webkit-line-clamp:2;-webkit-box-orient:vertical;overflow:hidden;cursor:pointer}
+.card.open .desc{-webkit-line-clamp:unset}
+.tags{display:flex;gap:5px;flex-wrap:wrap}
+.tag{background:var(--chip);border-radius:6px;padding:1px 8px;font-size:12px;color:var(--mut)}
+.tag.ch{background:var(--goodBg);color:var(--good);font-weight:700}
+.tag.st{background:var(--pri);color:var(--priT)}
+.rw{font-size:20px;font-weight:700;color:var(--gold)}.card.ch .rw{color:var(--good)}
+.meta{font-size:12.5px;color:var(--mut);display:flex;gap:10px;flex-wrap:wrap}
+.act{display:flex;gap:6px;flex-wrap:wrap;align-items:center;margin-top:auto;padding-top:4px}
+.btn{font:inherit;font-size:13px;border-radius:8px;padding:6px 12px;cursor:pointer;border:1px solid var(--line);background:var(--card);color:var(--fg)}
+.btn.pri{background:var(--pri);color:var(--priT);border-color:var(--pri);font-weight:700}
+.btn.link{border:0;background:none;color:var(--mut);text-decoration:underline;padding:6px 4px}
+.star{font:inherit;font-size:12px;border:1px solid var(--gold);color:var(--gold);background:none;border-radius:6px;padding:3px 7px;cursor:pointer}
+.warn{color:var(--warn);font-size:12.5px}
+.panel{background:var(--card);border:1px solid var(--line);border-radius:12px;padding:16px;margin-bottom:14px}
+.panel h2{margin:0 0 10px;font-size:17px}
+.form{display:grid;grid-template-columns:repeat(auto-fit,minmax(200px,1fr));gap:10px}
+.form label{display:flex;flex-direction:column;gap:3px;font-size:13px;color:var(--mut)}
+.form .full{grid-column:1/-1}
+.score{font-size:46px;font-weight:700;color:var(--gold);line-height:1}
+.prog{height:8px;border-radius:99px;background:var(--chip);overflow:hidden;margin:8px 0}.prog i{display:block;height:100%;background:var(--gold)}
+.stats{display:grid;grid-template-columns:repeat(auto-fit,minmax(120px,1fr));gap:10px;margin-top:10px}
+.stats div{background:var(--chip);border-radius:8px;padding:8px 10px;font-size:12.5px;color:var(--mut)}.stats b{display:block;font-size:20px;color:var(--fg)}
+.led{list-style:none;margin:0;padding:0;font-size:13.5px}.led li{display:flex;justify-content:space-between;gap:10px;padding:6px 0;border-bottom:1px solid var(--line)}
+.pos{color:var(--good);font-weight:700}.neg{color:var(--warn);font-weight:700}
+.cert{border:2px double var(--good);border-radius:12px;padding:16px;text-align:center;background:var(--goodBg);color:var(--good)}
+.cert b{font-size:20px}
+.two{display:grid;grid-template-columns:repeat(auto-fit,minmax(280px,1fr));gap:14px}
+.rank{margin:0;padding-left:20px;font-size:14px}.rank li{padding:3px 0}.rank .m{font-weight:700;color:var(--pri)}
+.empty{color:var(--mut);padding:24px;text-align:center}
+#toast{position:fixed;left:50%;bottom:calc(24px + env(safe-area-inset-bottom,0px));transform:translateX(-50%);background:var(--fg);color:var(--bg);padding:9px 18px;border-radius:99px;font-size:14px;opacity:0;pointer-events:none;transition:opacity .2s;max-width:90%;text-align:center}
+#toast.on{opacity:1}
+footer{margin-top:22px;color:var(--mut);font-size:12.5px;text-align:center}
+body{background:#d9dee6}
+.wrap{position:relative;max-width:480px;min-height:100vh;background:var(--bg);padding:0 12px 96px;box-shadow:0 0 30px rgba(0,0,0,.12)}
+header{position:sticky;top:0;z-index:5;background:var(--bg);padding:10px 0 8px;justify-content:flex-start;align-items:center;gap:10px;flex-wrap:nowrap}
+.logo{width:38px;height:38px;flex:none}
+header h1{font-size:20px}
+header .sub{margin:0;font-size:12px}
+.me{flex:none;font-size:12px;padding:4px 8px}.me b{font-size:16px}
+nav{position:fixed;left:50%;transform:translateX(-50%);bottom:0;width:100%;max-width:480px;display:flex;justify-content:space-around;background:var(--card);border-top:1px solid var(--line);border-bottom:0;margin:0;padding:6px 4px calc(6px + env(safe-area-inset-bottom,0px));z-index:10;overflow:visible}
+nav button{flex:1;display:flex;flex-direction:column;align-items:center;font-size:11px;padding:2px 0;border:0}
+nav button .ic{font-size:21px;line-height:1.2}
+nav button.on{border:0;color:var(--pri);font-weight:700}
+nav button:nth-child(3) .ic{background:var(--pri);color:var(--priT);border-radius:50%;width:40px;height:40px;display:flex;align-items:center;justify-content:center;margin-top:-16px;font-size:20px;box-shadow:0 2px 8px rgba(0,0,0,.25)}
+#more{position:absolute;right:12px;top:56px;background:var(--card);border:1px solid var(--line);border-radius:10px;z-index:20;display:flex;flex-direction:column;box-shadow:0 6px 18px rgba(0,0,0,.2)}
+#more button{font:inherit;background:none;border:0;padding:10px 18px;text-align:left;color:var(--fg);cursor:pointer}
+#toast{bottom:calc(84px + env(safe-area-inset-bottom,0px))}
+#splash{position:fixed;inset:0;z-index:99;display:flex;flex-direction:column;align-items:center;justify-content:center;gap:12px;background:linear-gradient(170deg,#15195c,#2a3a9e 55%,#0e8a8f);color:#fff;transition:opacity .5s}
+#splash.off{opacity:0;pointer-events:none}
+#splash b{font-size:30px;letter-spacing:.2em}#splash span{opacity:.85}
+.card.sos{border-left-color:#d9381e}.card.sos h3::before{content:"🚨 "}
+details summary{cursor:pointer;color:var(--pri);margin:6px 0}
+#det{position:fixed;inset:0;z-index:50;background:rgba(0,0,0,.5);display:flex;justify-content:center;align-items:flex-end}
+#det.hide{display:none}
+.sheet{background:var(--bg);width:100%;max-width:480px;max-height:92vh;overflow:auto;border-radius:16px 16px 0 0;padding:14px 14px calc(26px + env(safe-area-inset-bottom,0px))}
+.sheet h3{margin:12px 0 4px;font-size:15px}
+#toast{z-index:60}
+</style>
+</head>
+<body>
+<svg width="0" height="0" style="position:absolute"><symbol id="ic" viewBox="0 0 512 512"><defs><linearGradient id="g" x1="0" y1="0" x2="0" y2="1"><stop offset="0" stop-color="#15195c"/><stop offset=".6" stop-color="#2a3a9e"/><stop offset="1" stop-color="#0e8a8f"/></linearGradient><linearGradient id="w" x1="0" y1="0" x2="0" y2="1"><stop offset="0" stop-color="#3fd0c9"/><stop offset="1" stop-color="#0d6f86"/></linearGradient><clipPath id="cp"><rect width="512" height="512" rx="112"/></clipPath></defs><g clip-path="url(#cp)"><rect width="512" height="512" fill="url(#g)"/><g fill="#fff"><circle cx="90" cy="96" r="4"/><circle cx="170" cy="60" r="3"/><circle cx="270" cy="96" r="3.5"/><circle cx="440" cy="60" r="4"/><circle cx="360" cy="150" r="3"/><circle cx="60" cy="200" r="3"/><circle cx="470" cy="210" r="3"/></g><path d="M400 100l9 24 24 9-24 9-9 24-9-24-24-9 24-9z" fill="#ffd24a"/><path d="M110 160q14-18 28 0 14-18 28 0" fill="none" stroke="#fff" stroke-width="6" stroke-linecap="round"/><path d="M190 126q10-13 20 0 10-13 20 0" fill="none" stroke="#fff" stroke-width="5" stroke-linecap="round"/><rect x="253" y="190" width="6" height="112" fill="#fff"/><path d="M256 232C150 168 186 96 256 152 326 96 362 168 256 232z" fill="#ff5d8f"/><path d="M170 300H342L318 346H194z" fill="#ffd24a"/><path d="M0 340Q64 310 128 340T256 340 384 340 512 340V512H0z" fill="url(#w)"/><path d="M0 392Q64 362 128 392T256 392 384 392 512 392V512H0z" fill="#0b5a78" opacity=".7"/></g></symbol></svg>
+<div class="wrap">
+<header>
+<svg class="logo"><use href="#ic"/></svg>
+<div style="flex:1;min-width:0"><h1>任务大厅</h1><p class="sub">凡是需求，皆可成单 · 有信走遍天下</p></div>
+<div class="me" id="me"></div><button class="btn" data-tab="chat" aria-label="聊天">💬</button><button class="btn" data-act="menu" aria-label="更多">⋯</button>
+</header><div id="more"></div>
+<nav id="nav"></nav>
+<main id="view"></main>
+<footer>演示版：数据保存在你当前浏览器里，不会上传。涉及对方的操作（接单、提交、验收）用“演示”按钮来模拟。<br>合作共赢：先把一单做好，信用慢慢累积。</footer>
+</div>
+<div id="det" class="hide"></div>
+<div id="toast" role="status"></div>
+<div id="splash"><svg style="width:104px;height:104px"><use href="#ic"/></svg><b>任务大厅</b><span>爱与自由 · 星辰大海 · 梦想与理想</span></div>
+<script>
+(function(){
+var KEY='taskmarket_v1';
+var CATS=['技术开发','设计创意','写作翻译','教育辅导','生活服务','运营推广','数据整理','义工旅行','租房住宿','搭子组队','专属技能','江湖救急','旅行探险'];
+var LV=[{n:'新手',m:0},{n:'铜牌',m:80},{n:'银牌',m:150},{n:'金牌',m:300},{n:'钻石',m:600}];
+var ST={open:'待接单',doing:'进行中',submitted:'待验收',done:'已完成',cancelled:'已撤销'};
+var NAMES=['阿杰','Lily','老周','小北','晓晴'];
+var USERS=[{n:'阿杰',c:420,s:4.9,k:90},{n:'Lily',c:310,s:4.8,k:40},{n:'老周',c:180,s:4.6,k:120},{n:'小北',c:95,s:4.7,k:15},{n:'晓晴',c:650,s:5.0,k:200}];
+var RT={money:'金钱',lodge:'包吃包住',gift:'礼品/体验',swap:'技能互换',free:'免费互助',point:'公益积分'};
+var BAD=/刷单|垫付|提前转账|先付款|贷款|博彩|代考|私下转账|刷信用|买分/;
+var REF={'技术开发':300,'设计创意':200,'写作翻译':120,'教育辅导':100,'生活服务':50,'运营推广':150,'数据整理':80};
+var MAXACT=[2,3,5,8,12];
+var T10={'西藏':'拉萨城市漫步陪游搭子|日喀则寺庙摄影记录志愿者|青藏线火车慢旅搭子|羌塘草原野生动物观察志愿|藏医药文化体验志愿者|林芝桃花沟徒步搭子|藏式手工艺店铺帮工换宿|纳木错日出拍摄助手|川藏南线越野拼车搭子|雪域高原急救知识宣讲志愿',
+'新疆':'伊犁薰衣草田采摘体验换宿|喀纳斯湖徒步搭子|吐鲁番葡萄沟帮工换宿|帕米尔高原摄影陪拍|塔克拉玛干沙漠探险搭子|乌鲁木齐美食探店搭子|哈萨克族毡房体验志愿|新疆棉花采摘体验志愿|赛里木湖环湖骑行搭子|天山南北自驾拼车搭子',
+'云南':'丽江古城客栈义工|腾冲火山热海徒步搭子|普洱茶山采茶体验换宿|元阳梯田摄影陪拍|大理白族扎染工坊志愿|泸沽湖环湖骑行搭子|怒江大峡谷自驾搭子|昆明花市花艺体验志愿|建水古城古建筑记录志愿|云南咖啡豆分拣体验换宿',
+'出差':'杭州电商展会跑腿助手|西安项目现场拍照代办|南京合同面签陪同|重庆展位布展帮手|武汉考察接待陪同|厦门跨境展会翻译助理|天津仓库盘点协助|青岛海产品验货代办|长沙活动现场摄影助手|郑州设备安装协助记录',
+'搭子':'周末羽毛球搭子|早起晨跑搭子|读书会线下搭子|桌游线下搭子|摄影街拍搭子|看演出搭子|陶艺体验搭子|周末爬山搭子|探店咖啡搭子|健身房互相监督搭子',
+'国外':'印尼巴厘岛瑜伽馆换宿|西班牙农场换宿体验|德国青旅前台志愿者|澳大利亚牧场帮工换宿|新加坡国际会议志愿者|马来西亚雨林保护志愿|斯里兰卡海龟保护志愿|意大利葡萄园采摘换宿|柬埔寨社区学校志愿|印度瑜伽静修志愿者',
+'北欧':'挪威峡湾徒步搭子|冰岛温泉探索搭子|芬兰桑拿文化体验搭子|瑞典斯德哥尔摩骑行搭子|丹麦童话小镇摄影搭子|拉普兰极光民宿帮工换宿|挪威渔村帮工换宿|冰岛青旅志愿者|芬兰森林木屋志愿|北欧自驾环线拼车搭子',
+'南极北极':'南极摄影展策展志愿者|北极熊保护知识宣讲志愿|极地科考馆讲解志愿|漠河极光民宿帮工换宿|北极村冬季摄影陪拍|极地纪录片字幕志愿|南极保护公益设计志愿|极地装备清单整理志愿|冰雪摄影搭子|极寒露营体验搭子',
+'欧亚非':'希腊海岛民宿帮工换宿|埃及潜水中心志愿者|摩洛哥手工艺作坊志愿|肯尼亚学校志愿教师|土耳其热气球摄影助手|乌兹别克斯坦古城摄影记录|坦桑尼亚野生动物摄影陪同|约旦佩特拉古城徒步搭子|格鲁吉亚葡萄酒庄换宿|斯里兰卡茶园志愿',
+'旅行':'青甘大环线拼车搭子|川西秋色摄影搭子|海岛慢旅行搭子|古城文化游搭子|高铁周边一日游搭子|房车旅行拼车搭子|美食地图记录志愿者|背包客栈义工互助|亲子旅行带队志愿者|无障碍旅行陪伴志愿者',
+'江湖救急':'夜间陪送发烧儿童就医|旅途证件遗失紧急协助|路边抛锚紧急联系救援|临时看护独居老人一小时|异地突发住院陪护支援|紧急翻译医院沟通|走失儿童协助寻找线索|暴雨滞留车站紧急接应|紧急代取并送达重要文件|旅途钱包丢失协助报警（不涉及借款）',
+'组队':'小程序创业组队冲刺|短视频创作者组队|公益设计联盟组队|编程算法刷题组队|英语演讲俱乐部组队|户外装备拼单组队|摄影展联合组队|读书写作互助组队|社区义卖志愿组队|冬季滑雪组队'};
+var TD={'西藏':'活动在高海拔地区进行，需提前适应并备好药品，集合时间和路线在聊天里确认，费用 AA 或由发布者说明。','新疆':'行程跨度大、路途长，注意昼夜温差和补给，行程和费用在平台内书面确认，需要遵守当地规定。','云南':'山地和雨季天气多变，注意安全和装备，尊重当地民族习俗，食宿和费用提前约定。','出差':'需要按约定时间到现场，保留票据和照片，差旅费用凭票据结算，涉及保密的资料不外传。','搭子':'双方先在聊天里确认时间、地点和费用分摊，首次见面选公共场所，感觉不适可随时退出。','国外':'需要有效护照和签证并购买境外保险，行程和食宿书面确认，遵守当地法律，信用要求较高并经平台审核。','北欧':'注意低温、冰雪和高物价，提前准备装备和预算，遵守当地环保和安全规定。','南极北极':'极地环境特殊，所有安排以安全为先，需体检合格并购买含救援的保险，费用走平台担保，信用要求很高。','欧亚非':'跨国行程需要处理签证、疫苗和保险，注意当地治安和习俗，紧急情况优先联系使领馆和平台。','旅行':'行程、预算和分工提前在平台内确认，费用 AA 并记账，注意保管证件和随身物品。','江湖救急':'这是紧急求助，需要高信用用户接单，全程在平台留痕，不涉及借钱垫款，完成后及时报平安。','组队':'成行后自动建群，队长和成员在群里确认分工、时间和费用，中途退出请提前告知。'};
+var TB={'西藏':[700,80,'西藏·拉萨','旅行探险'],'新疆':[600,80,'新疆·乌鲁木齐','旅行探险'],'云南':[500,0,'云南·昆明','旅行探险'],'出差':[500,80,'','生活服务'],'搭子':[0,0,'','搭子组队'],'国外':[700,300,'境外','旅行探险'],'北欧':[800,300,'北欧','旅行探险'],'南极北极':[1000,450,'极地相关','旅行探险'],'欧亚非':[800,450,'境外','旅行探险'],'旅行':[400,80,'全国','旅行探险'],'江湖救急':[300,450,'','江湖救急'],'组队':[0,0,'','搭子组队']};
+var EXD2=['技术开发|需求变更要收费|每次改需求先评估工作量，书面确认后再动手，别当场口头答应。','技术开发|用版本管理保命|每个阶段打标签提交，客户反悔时能秒回退，也是证据。','技术开发|报价留出余量|按功能点估时，再加 20% 缓冲，别只报最乐观的数字。','技术开发|先做可演示的雏形|一周内给出能点的原型，客户确认方向再深入。','技术开发|文档比代码更值钱|写清部署步骤和账号清单，客户换人维护也不慌。','技术开发|别在客户服务器上乱来|操作前先备份，改动全部记录，出问题能回滚。','技术开发|敏感数据别带走|项目结束后删除本地数据副本，并书面告知客户。','技术开发|接口先约定再开发|前后端先对齐字段和错误码，能少一半联调时间。','技术开发|测试要覆盖老手机|上线前在低配和旧系统上跑一遍，少被投诉。','技术开发|交付后留 7 天答疑|约定免费答疑期，期限外按小时收费，边界清楚。',
+'设计创意|先问用途再动笔|海报是线上看还是线下印，尺寸和色彩模式完全不同。','设计创意|发三版就够了|给太多选择反而让客户纠结，三个方向足矣。','设计创意|字体授权要查清|商用字体先确认授权，避免成品被索赔。','设计创意|留好过程稿|草图和修改记录是你努力的证据，也能防反悔。','设计创意|色彩用客户的品牌色|拿到品牌手册再设计，少走很多弯路。','设计创意|交付多种格式|给 PNG、PDF 和源文件，客户用起来更省心。','设计创意|别免费做“试稿”|试稿可以做小段落，整套方案要走正式约定。','设计创意|学会说“不”|不合理的修改要求，礼貌说明超出范围并给出加价方案。','设计创意|作品集配上故事|写清客户痛点和你的解法，比一堆图片有说服力。','设计创意|提前对齐审美|让对方发三张喜欢和三张讨厌的参考，一次摸清口味。',
+'写作翻译|先问读者是谁|同样的内容，写给专家和写给新手完全是两种写法。','写作翻译|保留原文对照|翻译交稿附对照表，客户校对更方便。','写作翻译|引用要标来源|任何数据和引文都标出处，避免抄袭争议。','写作翻译|标题多备几个|给 3 个备选标题，客户更容易选中满意的。','写作翻译|按千字报价更清晰|难度高的稿件加价，写进约定，别事后补。','写作翻译|专业稿找行内人审|医学、法律类译文最好请懂行的人复核。','写作翻译|使用术语库|同一个词前后一致，客户才觉得专业。','写作翻译|别接超出能力的稿|硬接会拖延和返工，影响好评。','写作翻译|留好修改记录|多轮修改用批注保存，防止越改越回去。','写作翻译|交稿前朗读一遍|读出声能发现拗口和重复，比默读有效。',
+'教育辅导|先诊断再讲课|用小测验找出薄弱点，别一上来就讲新课。','教育辅导|作业要有反馈|批改后写下错因和改进方法，学生才有进步感。','教育辅导|讲课留互动|每讲 5 分钟问一个问题，保持注意力。','教育辅导|家长沟通要具体|告诉家长孩子进步了什么、下一步做什么，而不是只说还不错。','教育辅导|线上课备好板书|提前准备电子白板和例题，节省课堂时间。','教育辅导|不承诺提分数|可以承诺方法和计划，不承诺具体成绩。','教育辅导|留 10 分钟总结|课末让学生自己复述重点，掌握更牢。','教育辅导|保护学生隐私|不公开学生成绩和照片，聊天只谈学习。','教育辅导|请假规则写清楚|提前多久通知、是否补课，开课前就约定。','教育辅导|适度布置作业|宁可少而精，也别让孩子被压垮。',
+'生活服务|先报价后上门|按面积、数量和难度给出区间，现场确认后再动工。','生活服务|工具自带更专业|自备工具和手套鞋套，客户体验好评多。','生活服务|贵重物品不碰|保洁和搬家时不动首饰证件，避免争议。','生活服务|完工拍对比照|前后对比图是最好的验收凭证。','生活服务|准时通知延误|路上堵车提前说，别让客户干等。','生活服务|遇到危险要拒绝|高空、带电等高风险作业，没有资质就不要接。','生活服务|价格别随意加|增项要拍照说明并走平台确认。','生活服务|联系方式要谨慎|保持在平台沟通，既保护隐私也留证据。','生活服务|小区进出要登记|按物业规则登记，避免被拦下耽误时间。','生活服务|做完请求评价|礼貌请客户在平台验收评价，好评影响后续接单。',
+'运营推广|先定位再做内容|账号给谁看、解决什么问题，想清楚再发。','运营推广|数据看趋势不看单条|一周的平均值比一条爆款更说明问题。','运营推广|评论区也是内容|及时回复评论，互动率会明显提升。','运营推广|别买粉买赞|看起来好看，转化却是零，还可能被限流。','运营推广|选题库常备 30 个|灵感枯竭时有库可取，不断更。','运营推广|标题测试两个版本|发布后看点击率，保留更好的那个。','运营推广|合规用词|避免“最”“第一”等绝对词，遵守广告法。','运营推广|活动要有明确规则|时间、奖励、领取方式写清楚，少纠纷。','运营推广|复盘写成表格|每周记录指标和调整，长期可看趋势。','运营推广|沉淀私域要尊重|拉群前征得同意，别频繁打扰。',
+'数据整理|先看数据全貌|了解行数、字段、缺失率，再决定怎么清洗。','数据整理|统一格式再去重|日期、电话、大小写先统一，去重才准确。','数据整理|善用透视表|汇总统计用透视表比手工快得多。','数据整理|缺失值要标注|不要随意填充，标出缺失原因。','数据整理|每步另存版本|文件名带日期和步骤号，随时可回退。','数据整理|校验抽样 5%|处理完随机抽检，错误率高就重做规则。','数据整理|公式别写死|用引用和命名区域，数据更新自动变。','数据整理|敏感字段脱敏|身份证、手机号只保留必要位数。','数据整理|交付附字段说明|写清每列含义、单位和来源。','数据整理|学会简单脚本|重复任务用小脚本，效率翻几倍。',
+'义工旅行|看清是否收费|正规义工项目主要提供食宿，不应收取高额费用。','义工旅行|问清每天工时|一般 4 到 6 小时，别被当免费劳动力。','义工旅行|了解接待条件|住几人间、有没有热水和网络，提前确认。','义工旅行|带上基础药品|感冒、肠胃和外伤药，偏远地区尤其需要。','义工旅行|签订简单协议|写清工时、食宿、离开方式，避免纠纷。','义工旅行|尊重当地文化|着装和拍照前先询问，别打扰居民。','义工旅行|保持联络|每天给家人报平安，位置共享更安心。','义工旅行|预留机动资金|遇到突发情况，有钱能顺利离开。','义工旅行|记录并回馈|写游记和评价，帮后来者避坑。','义工旅行|别冲动延期|身体状态不好就及时回家休息。',
+'租房住宿|看房时看这些|水压、采光、手机信号、噪音，都要现场试。','租房住宿|核对房东证件|产权证和身份证一致，转租要有房东同意。','租房住宿|押金写进合同|金额、退还时间、扣款条件写清楚。','租房住宿|水电燃气抄表|入住当天拍读数，退租时对照结算。','租房住宿|家具家电清单|逐项拍照签字，退租按清单验收。','租房住宿|合租定规矩|卫生值日、访客、噪音和费用分摊提前讲明。','租房住宿|防二房东套路|核实对方是不是产权人或有转租权。','租房住宿|租期违约条款|提前退租怎么赔，别只听口头承诺。','租房住宿|保留所有转账记录|租金押金走可追溯的方式。','租房住宿|搬走前检查|关好水电，拍下房屋状态，保留退房凭证。',
+'搭子组队|先聊价值观|旅行和生活节奏合不合拍，比兴趣更重要。','搭子组队|提前约定预算|交通住宿餐饮的上限，写下来更清楚。','搭子组队|设一个暂停键|有人不舒服或想独处，就暂停活动。','搭子组队|位置共享|户外活动互相共享位置，安全第一。','搭子组队|分工别压在一个人身上|订票、攻略、记账轮流负责。','搭子组队|不强迫喝酒和夜场|尊重个人边界，才能长久。','搭子组队|备好应急联系人|大家交换紧急联系人和血型信息。','搭子组队|拍照前先问意见|发朋友圈前征得对方同意。','搭子组队|结束后互评|写下具体的靠谱点，帮助别人选搭子。','搭子组队|感觉不安全就离开|果断离开并告知朋友，不要硬撑。',
+'影视后期|剪辑前先看全素材|知道有什么镜头，才能讲好故事。','影视后期|先粗剪再精剪|先确定结构，再抠节奏和转场。','影视后期|音乐是节奏的灵魂|卡点要准，音量要压住人声。','影视后期|调色统一风格|同一场景的色调保持一致。','影视后期|字幕要校对三遍|错别字是最容易被挑出的问题。','影视后期|代理文件提速|高清素材用代理剪，导出时再换回。','影视后期|导出多规格|同时出横屏、竖屏和低码率版本。','影视后期|保留工程备份|每天另存，防止软件崩溃。','影视后期|素材商用要授权|图片音乐字体都要有授权凭证。','影视后期|交付附说明|写清格式、编码和使用建议。',
+'家政厨司|先问忌口过敏|做饭前问清过敏和宗教饮食禁忌。','家政厨司|食材自带还是客户提供|提前约定，避免费用争议。','家政厨司|厨房收尾是加分项|擦灶台、倒垃圾、归位，客户印象很好。','家政厨司|开车系好安全带|接送老人孩子更要平稳慢行。','家政厨司|路线提前确认|导航加上客户的习惯路线。','家政厨司|保洁分区推进|先高后低、先干后湿，效率更高。','家政厨司|清洁剂要分类|不同材质用不同清洁剂，避免损坏。','家政厨司|保存收据和照片|耗材费用有凭证，对账不扯皮。','家政厨司|不随意进入卧室|没有明确邀请，不进私人空间。','家政厨司|留一个检查表|做完逐项打钩，让客户一眼看明白。',
+'接单通用|先看发单人信用|信用高、评价多的更靠谱。','接单通用|报酬明显偏高要警惕|远高于行情的大多有坑。','接单通用|先小后大|从小单攒好评，再接高要求的。','接单通用|回复要及时|发单人通常 24 小时内决定人选。','接单通用|简历写成能力清单|写做过什么、结果如何，比空泛自夸有效。','接单通用|不同时接太多单|超出能力会拖延，影响信用。','接单通用|交付前自查清单|对照要求逐项检查，减少返工。','接单通用|遇到分歧先沟通|不行再申请调解，别急着差评。','接单通用|保持礼貌|好口碑会带来长期合作。','接单通用|坚持每日签到|不积跬步，信用也是一点点攒出来的。'];
+var EXPC=['技术开发','设计创意','写作翻译','教育辅导','生活服务','运营推广','数据整理','义工旅行','租房住宿','搭子组队','影视后期','家政厨司','接单通用'];
+var EXPD=['技术开发|先要需求文档再报价|口头需求最容易扯皮。接单前让对方写清楚功能清单和验收标准，再按功能报价，改需求就加价。','技术开发|分阶段交付，分阶段收款|大项目拆成 3 个里程碑，每个里程碑验收后再付一笔，双方都有保障。','技术开发|代码交付前自己跑一遍|交付前按验收清单逐条自测，附上运行说明，能少一半售后沟通。','技术开发|别接“差不多就行”的单|没有验收标准的单子，最后多半是无限修改。宁可少接，也要让对方把标准写下来。','技术开发|保留沟通和版本记录|所有需求变更都在平台内确认，代码用版本管理，出了纠纷这是最有力的证据。',
+'设计创意|先给方向稿再精修|先出 2 到 3 个粗略方向让对方选，确认后再精修，避免做完整套被整个推翻。','设计创意|修改次数写进约定|报价里写明包含几轮修改，超出的按次加价，沟通起来也不尴尬。','设计创意|作品集挑精不挑多|放 5 个最好的案例，比放 30 个普通的更容易接到单。','设计创意|源文件和授权说清楚|交付哪些格式、是否买断版权，接单前就谈好，别等交稿后才争议。','设计创意|参考图比形容词管用|“高级感”“大气”每个人理解不同，让对方发 3 张喜欢的参考图，沟通成本降一半。',
+'写作翻译|先试译或试写一小段|接稿前做 200 字样稿，对方认可风格再开工，双方都放心。','写作翻译|术语表要先确认|翻译前先列专有名词对照表，统一后再翻，能少很多返工。','写作翻译|按字数还是按项目报价|短稿按字数，长期项目按月，报价方式要在开工前写清楚。','写作翻译|交稿附修改说明|标出改了哪里、为什么这样改，客户更容易信任你的专业。','写作翻译|保密稿件别外传|涉及合同、商业资料的稿件，不要发给第三方，也别随便丢进在线工具。',
+'教育辅导|第一节课先做摸底|用 20 分钟了解学生薄弱点，再制定计划，家长更容易看到你的价值。','教育辅导|每次课后发简短反馈|三句话：学了什么、掌握得如何、下次重点，家长和学生都会更放心。','教育辅导|试听课别讲太满|试听展示方法和互动就够了，把完整内容留给正式课。','教育辅导|线上辅导先测试设备|提前十分钟试麦克风、共享屏幕和白板，避免上课时手忙脚乱。','教育辅导|和家长约好沟通边界|固定沟通时间，不接受深夜随时追问，长期合作才不会累。',
+'生活服务|上门前先视频确认现场|让对方拍照或视频看一眼，工作量和难度更准，报价不会吃亏。','生活服务|贵重物品提前拍照|搬运、保洁前后都拍照留存，出现争议时有依据。','生活服务|加价要在平台里确认|加项收费走平台确认，不要现场口头加价，避免纠纷。','生活服务|准时比便宜更重要|生活服务最怕迟到失约，提前 15 分钟到，好评自然来。','生活服务|独自上门要报备|把地址和时间告诉朋友，到达和离开时发个消息，注意自身安全。',
+'运营推广|先看账号数据再接单|让对方给出近 30 天的数据截图，判断能做到什么程度，别乱承诺涨粉。','运营推广|目标拆成可验证的指标|阅读量、咨询数、转化数分别写清楚，验收时才不会各说各话。','运营推广|先给选题再制作|先给 10 个选题让对方选，比直接做 10 条内容更省时间。','运营推广|别碰刷量和虚假宣传|刷量一旦被发现，账号会受罚，你也会背上信用风险。','运营推广|每周一份复盘|数据、做得好的、下周调整三块，长期合作最容易续约。',
+'数据整理|先拿 20 行样本试做|确认格式、字段含义和异常处理规则后再全量处理，避免整批返工。','数据整理|原始数据一定留备份|每一步都另存新文件，出错能回退，也方便对方核对。','数据整理|敏感信息要脱敏|手机号、身份证号等个人信息，处理前先问清能不能看、怎么存。','数据整理|用公式和脚本代替手工|重复工作写个简单公式或脚本，又快又不容易出错，也能多接单。','数据整理|交付附处理说明|写清楚清洗规则和剔除了哪些数据，客户验收更顺利。',
+'义工旅行|先看往期义工评价|选择有真实评价、有长期接待记录的接待方，避开打着义工名义用廉价劳动力的。','义工旅行|工作时长和食宿提前写清|每天几小时、休息几天、住几人间、吃什么，出发前都要书面确认。','义工旅行|买好保险再出发|户外和海外义工务必买意外险，路上和劳动中都有保障。','义工旅行|保留退出路线|提前查好最近的车站和联系方式，万一不适合，能顺利离开。','义工旅行|把经历写成评价|离开时认真写评价，对后来的人帮助最大，也能积累你的信用。',
+'租房住宿|一定要看房再付钱|视频或实地看房，核对房东身份和房产信息，再谈价格。','租房住宿|合同写清押金退还条件|押金金额、退还时间、哪些情况扣款，都要写进合同。','租房住宿|拍下入住前的房屋状况|墙面、家具、设施拍照留存，退租时避免被乱扣费。','租房住宿|合租先约法三章|卫生、访客、公共费用分摊，入住第一天就聊清楚。','租房住宿|定金走平台担保|短租和换宿的定金不要直接转给陌生人，走平台担保更安心。',
+'搭子组队|第一次见面选公共场所|白天、人多的地方，告诉朋友你的行程，安全第一。','搭子组队|先把期待说清楚|是安静看风景还是拼命赶行程，出发前聊清楚，减少旅途摩擦。','搭子组队|费用 AA 提前约定|交通、住宿、门票怎么分摊，用记账方式明确，不要靠默契。','搭子组队|留一个退出机制|如果相处不愉快，允许任何一方提前离队，不要强行绑定。','搭子组队|评价写具体|写下对方哪里靠谱，下次组队的人能更快判断。',
+'影视后期|先确认交付规格|分辨率、帧率、格式、时长和字幕要求，开工前一次问清。','影视后期|素材先备份再动手|拿到素材先复制一份，工程文件分版本保存，随时能回退。','影视后期|样片一定先给客户看|先出 30 秒样片确认风格和节奏，再做完整片子。','影视后期|版权音乐要问清来源|使用商用授权的音乐和字体，避免成片被投诉下架。','影视后期|渲染前列检查清单|错字、黑边、音量、卡点，逐条检查，减少来回返工。',
+'家政厨司|上门前确认食材和器具|做饭类先问好人数、忌口、厨房器具，避免到场才发现缺东西。','家政厨司|司机类先核对行程和路线|时间、上下车地点、是否有过路费，提前说清，别在路上争执。','家政厨司|保洁先约定范围|哪些区域、哪些项目，写成清单，超出范围要加价。','家政厨司|安全第一|搬运、登高、用刀、开车，都按规范操作，必要时买保险。','家政厨司|留好票据和照片|完成后拍照、保留付款记录，出现争议时能自证。',
+'接单通用|新手从小单做起|先接要求信用 0 的小单，每单认真做，好评和信用都会慢慢累积。','接单通用|先沟通再点接受|把时间、报酬、验收标准问清楚，再决定接不接。','接单通用|超出能力的不要接|宁可拒绝，也不要接了又放弃，放弃会扣信用，还会影响后续接单。','接单通用|所有沟通留在平台|聊天记录是纠纷的证据，私下沟通出了问题，平台也帮不了你。','接单通用|做完主动要评价|礼貌地请对方验收并评价，好评是你最重要的资产。'];
+var CITY=['北京','上海','广州','深圳','成都','杭州','武汉','西安','南京','重庆'];
+var POSTERS=['星河工作室','小满设计','云帆科技','青禾农场','恒信咨询','阿宁','老周','小北','晓晴','陈女士','李先生','暖爪救助站','幸福里居委会','桌游店小米','高校课题组','山里的光'];
+var PD=['小学家教|📚|100|0|数学作业辅导,语文阅读与写作,英语启蒙,科学小实验课,暑期托管看护','初高中老师|🎓|150|0|初三数学冲刺,高一物理补差,高考作文批改,英语听说训练,化学实验讲解','艺术培训老师|🎨|120|0|少儿绘画体验课,钢琴陪练,声乐入门,舞蹈基础,书法启蒙','编程老师|💻|150|1|Scratch 少儿编程,Python 零基础入门,信息学竞赛辅导,小程序开发教学,机器人编程课','语言老师|🗣|120|1|日语入门,韩语会话,德语 A1 辅导,法语发音纠正,雅思口语陪练','视频剪辑|🎬|400|1|旅行 vlog 剪辑,婚礼视频精剪,课程视频加字幕,短剧粗剪,企业宣传片剪辑','特效师|✨|600|1|片头动画制作,抠像与合成,产品演示特效,粒子特效,短片调色','三维建模|🧊|800|1|产品三维建模,室内效果图,游戏道具建模,角色建模,建筑漫游动画','摄影师|📷|500|0|活动跟拍,证件照拍摄,产品拍摄,婚礼跟拍,旅拍写真','配音演员|🎙|300|1|有声书录制,广告配音,短视频配音,方言配音,游戏角色配音','编剧文案|✍|400|1|短剧剧本,广告脚本,小说大纲,品牌故事,演讲稿撰写','前端工程师|🌐|1500|1|企业官网开发,H5 活动页,小程序前端,后台管理页面,页面动效实现','后端工程师|🛠|2000|1|接口开发,数据库设计,支付对接,合规数据采集,性能优化','移动开发|📱|1800|1|安卓应用修复,iOS 上架协助,Flutter 页面开发,应用内购集成,消息推送集成','测试工程师|🧪|600|1|小程序功能测试,接口测试,兼容性测试,自动化测试脚本,无障碍测试','数据分析师|📊|800|1|销售数据看板,问卷数据分析,用户画像分析,SQL 取数,Excel 建模','AI 工程师|🤖|2000|1|智能客服搭建,提示词优化,文档问答系统,图像识别小工具,数据标注规范','运维安全|🔒|900|1|服务器部署,网站备份,漏洞自查,域名与证书配置,日志排查','保洁家政|🧹|120|0|日常保洁,开荒保洁,擦玻璃,深度除螨,搬家后清洁','做饭厨师|🍳|300|0|上门做家宴,月子餐制作,减脂餐备餐,生日宴席,面点制作','司机代驾|🚗|200|0|机场接送,长途代驾,搬运用车,婚车接送,陪诊接送','搬家搬运|📦|250|0|小型搬家,家具拆装,货物装卸,打包整理,跨城搬家','维修师傅|🔧|150|0|家电维修,水电维修,锁具更换,家具修补,电脑清灰','宠物护理|🐶|100|0|上门喂养,遛狗,宠物洗护,宠物寄养,宠物陪诊','育儿陪护|👶|200|0|接送孩子,临时看护,陪读作业,亲子活动带队,月嫂体验','陪诊陪护|🏥|150|0|陪老人看病,挂号取药,住院陪护,康复陪练,就诊翻译陪同','导游向导|🧭|400|0|城市徒步向导,古镇讲解,一日游带队,外宾陪游,研学带队','翻译口译|🌍|500|1|陪同口译,会议同传,合同翻译,字幕翻译,旅游翻译','会计财税|🧾|400|1|个体户做账,报税辅导,发票整理,成本核算,创业财务规划','律师法务|⚖|500|1|合同审阅,劳动纠纷咨询,租房合同检查,商标注册协助,法律援助咨询','健身教练|🏋|200|0|私教体验课,减脂陪练,跑步配速指导,瑜伽入门,康复拉伸','化妆造型|💄|400|0|新娘跟妆,证件照化妆,舞台妆,形象设计,摄影造型','手工匠人|🪡|300|0|皮具定制,刺绣教学,木工小件,陶艺体验,非遗手作课','活动策划|🎉|800|0|社区活动策划,生日派对,公司年会,校园活动,市集摆摊','音乐人|🎵|600|0|婚礼现场演奏,配乐制作,作词编曲,乐队伴奏,街头演出'];
+var PROFS=PD.map(function(l){var a=l.split('|');return {n:a[0],e:a[1],p:+a[2],r:+a[3],t:a[4].split(',')};});
+var CD=['技术开发|paid|800|1|money||0|企业官网改版,公众号 H5 开发,小程序商城搭建,数据库慢查询优化,合规公开数据抓取,Excel 自动化脚本,App 闪退排查,服务器迁移,支付接口对接,开源项目文档与示例','设计创意|paid|300|1|money||0|Logo 设计,社交媒体海报,PPT 美化,包装设计,插画头像,表情包设计,书籍封面,菜单设计,UI 图标集,活动主视觉','写作翻译|paid|200|1|money||0|产品文案,公众号推文,简历润色,论文摘要翻译,英文邮件润色,演讲稿撰写,说明书翻译,短视频脚本,商业计划书文字,相声小品创意','教育辅导|paid|150|1|money||0|小学奥数辅导,雅思写作批改,考研英语答疑,成人零基础英语,Excel 技能培训,职场沟通教练,面试模拟,留学文书辅导,手语入门,中老年摄影课','生活服务|paid|60|0|money||0|代取快递,代买早餐,搬家帮手,家电安装,办证件跑腿,陪看房,代排队,整理收纳,代写贺卡,节日布置','运营推广|paid|400|1|money||0|小红书账号起号,短视频脚本策划,社群运营,活动海报投放,直播间场控,私域客服话术,店铺详情页优化,问卷发放回收,新品试用推广,校园地推','数据整理|paid|150|1|money||0|表格去重清洗,发票信息录入,问卷编码,名单整理,PDF 转表格,图片文字识别校对,客户资料归档,库存盘点录入,调研数据可视化,会议纪要整理','义工旅行|charity|40|0|lodge|包吃包住|0|古镇客栈换宿,海岛青旅义工,草原牧场义工,生态农场义工,山区支教短期,动物救助义工,赛事志愿者,文化遗址讲解志愿,海外背包客栈换宿,国家公园志愿者','租房住宿|paid|0|0|gift|详情沟通，信用好可免押金|0|合租找室友,短租转租,沙发换宿,青旅床位互换,学生公寓转租,实习短租,看房陪同,租房合同检查,临时借宿,民宿帮手换住','搭子组队|swap|0|0|free|AA 分摊|1|电影搭子,吃饭搭子,徒步搭子,旅行搭子,健身搭子,自习搭子,摄影搭子,桌游搭子,展览搭子,跑步搭子'];
+var ui={tab:'home',q:'',cat:'',kind:'',mode:'',scope:'',sort:'new',open:true,dep:false,skill:'',lim:30,more:false,eq:'',ecat:'',esort:'hot',efav:false,ex:null,elim:20};
+var S=load();
+function fix(){
+  if(!S.reports)S.reports=S.tasks.slice(5,7).map(function(t,i){return {id:'r'+i,tid:t.id,why:i?'要求提前转账':'疑似虚假报酬',by:'匿名用户',st:'pending'};});
+  if(typeof S.notice!=='string')S.notice='';
+  if(!S.v2){S.tasks=S.tasks.concat(seed2());S.v2=1;}
+  if(!S.v3){S.tasks=S.tasks.concat(seed3());S.v3=1;init3();}
+  if(!S.v4){S.tasks=S.tasks.concat(seed4());S.v4=1;}
+  if(!S.ck)S.ck={last:'',streak:0,best:0,total:0,got:{}};
+  S.items=S.items||[];S.card=S.card||0;S.tix=S.tix||0;
+  if(!S.tips)S.tips=[{n:'晓晴',a:20,m:'加油，服务器钱我先出一点',ts:Date.now()-5e8},{n:'老周',a:10,m:'平台很好用',ts:Date.now()-4e8},{n:'Lily',a:50,m:'希望越做越好',ts:Date.now()-3e8}];
+  if(!S.chats)S.chats={};
+  if(!S.friends)S.friends=[{n:'晓晴',ts:Date.now()},{n:'老周',ts:Date.now()}];
+  if(!S.freq)S.freq=[{n:'Lily',m:'我看了你的任务，想认识一下'}];
+  if(!S.saved)S.saved=[];
+  if(!S.v7){S.tasks=S.tasks.concat(seed7(),seed8());S.v7=1;}
+  if(!S.v8){S.tasks=S.tasks.concat(seed9());S.exp=(S.exp||[]).concat(seedExp2());S.v8=1;}
+  if(!S.v6){S.tasks=S.tasks.concat(seed6());S.v6=1;}
+  if(!S.v5){S.tasks=S.tasks.concat(seed5());S.exp=seedExp().concat(S.exp||[]);S.warns=S.warns||{'用户*8080':2,'用户*2201':1};S.cases=S.cases||[];S.v5=1;}
+  ui.at=ui.at||'ov';
+}
+fix();
+
+function mk(t,cat,kind,reward,days,mode,min,poster,pc,desc,loc,age){
+  return {id:'s'+Math.random().toString(36).slice(2,9),t:t,cat:cat,kind:kind,reward:reward,days:days,mode:mode,loc:loc||'',min:min,poster:poster,pc:pc,desc:desc,status:'open',taker:null,rating:0,ts:Date.now()-age*3600000};
+}
+function seed(){
+  return {tasks:[
+    mk('小程序前端页面开发（5 个页面）','技术开发','paid',1800,10,'远程',80,'星河工作室',420,'根据设计稿还原 5 个页面，熟悉 uni-app 或原生小程序，交付源码并配合联调。验收标准：与设计稿一致，主流机型无明显错位。','',2),
+    mk('电商详情页设计 3 套','设计创意','paid',600,5,'远程',0,'小满设计',210,'为 3 款家居产品设计移动端详情页，提供 PSD 或 Figma 源文件，可修改 2 轮。','',5),
+    mk('英文技术文档翻译（约 6000 字）','写作翻译','paid',720,7,'远程',80,'云帆科技',330,'将开源项目的英文使用文档翻译成中文，术语保持一致，需附术语表。','',9),
+    mk('初中数学一对一线上辅导（每周 2 次）','教育辅导','paid',300,30,'远程',80,'陈女士',120,'初二学生，函数与几何薄弱。每次约 1 小时，要求有耐心，有教学经验优先。','',14),
+    mk('同城代取代送文件','生活服务','paid',60,1,'驻场',0,'李先生',95,'把一份合同从写字楼送到另一个区的律所，需当天送达并拍照签收。','同城',1),
+    mk('短视频账号一周试运营','运营推广','paid',1200,7,'远程',150,'青禾农场',260,'为农产品账号策划并发布 7 条短视频，提交选题、脚本和数据复盘。','',20),
+    mk('整理 2000 条问卷数据并清洗','数据整理','paid',350,3,'远程',0,'高校课题组',180,'去重、补全、统一格式，输出 Excel，并附清洗说明。','',7),
+    mk('客户现场数据录入（可居家）','数据整理','paid',900,6,'驻场',80,'恒信咨询',300,'前 3 天在客户办公室录入，之后可居家补录。需遵守保密约定。','全国可驻场',30),
+    mk('教社区老人使用智能手机（线下 2 小时）','生活服务','charity',30,3,'驻场',0,'社区服务站',280,'教老人使用微信视频、挂号小程序和防诈骗提醒。自带讲解材料，现场有志愿者协助。','社区活动室',3),
+    mk('为流浪动物领养设计宣传海报','设计创意','charity',25,6,'远程',0,'暖爪救助站',240,'设计 3 张领养海报，用于社交平台传播。文案由救助站提供。','',6),
+    mk('山区学校线上陪读（每周 1 小时）','教育辅导','charity',40,60,'远程',80,'星火支教',390,'给四、五年级学生讲故事和陪读，持续 2 个月。需通过简短面谈。','',12),
+    mk('公益网站无障碍测试','技术开发','charity',35,5,'远程',80,'无碍同行',310,'用读屏软件测试公益组织官网，提交问题清单和修改建议。','',16),
+    mk('为听障观众校对视频字幕','写作翻译','charity',20,4,'远程',0,'声音之桥',200,'校对 5 个科普视频的字幕，修正错字并标注环境音。','',22),
+    mk('小区快递点志愿整理（周末半天）','生活服务','charity',15,2,'驻场',0,'幸福里居委会',150,'协助整理积压包裹、引导取件，现场有人带队。','幸福里小区',4)
+  ],ledger:[{d:50,r:'注册奖励',ts:Date.now()}]};
+}
+function x(t,o){for(var k in o)t[k]=o[k];return t;}
+function seed2(){return [
+ x(mk('云南古城青旅义工，换宿 2 周','义工旅行','charity',30,14,'驻场',0,'大理小院青旅',230,'每天帮忙前台接待和打扫 4 小时，其余时间自由。包吃包住，可结识各地旅行者。','云南·大理',3),{rt:'lodge',rtext:'包吃包住 + 30 公益积分',scope:'跨省'}),
+ x(mk('西藏牧区夏令营志愿者','义工旅行','charity',50,10,'驻场',150,'高原伙伴公益',360,'陪伴牧区孩子做手工、户外活动和英语启蒙。含食宿，需通过面谈和培训。','西藏·那曲',5),{rt:'lodge',rtext:'包吃包住 + 50 公益积分',scope:'跨省'}),
+ x(mk('泰国生态农场换宿 3 周','义工旅行','swap',0,21,'驻场',300,'Green Valley Farm',410,'每天劳动 4 小时换取食宿，周末自由。需基础英语，自备签证，平台人工审核。','泰国·清迈',7),{rt:'lodge',rtext:'包吃包住（劳动换宿）',scope:'跨国'}),
+ x(mk('尼泊尔孤儿院英语志愿（含食宿）','义工旅行','charity',60,30,'驻场',300,'喜马拉雅之家',380,'每天教英语 3 小时，协助日常照料。需无犯罪记录证明和平台人工审核。','尼泊尔·加德满都',9),{rt:'lodge',rtext:'包吃包住 + 60 公益积分',scope:'跨国'}),
+ x(mk('地铁口两居室招合租室友','租房住宿','paid',0,7,'驻场',80,'王女士',140,'月租 1500，信用 ≥ 80 的用户可免押金，需提前视频看房。','成都·高新区',11),{rt:'gift',rtext:'月租 ¥1500，信用好免押金',scope:'同城'}),
+ x(mk('免费提供沙发住宿 3 晚（高信用旅行者优先）','租房住宿','swap',0,30,'驻场',150,'阿宁',320,'欢迎路过杭州的旅行者，请提前聊聊行程，留下评价即可。','杭州',8),{rt:'free',rtext:'免费住宿 3 晚',scope:'同城'}),
+ x(mk('自驾川西 8 天，缺 2 个搭子分摊油费','搭子组队','swap',0,20,'驻场',80,'老周',180,'5 月出发，成都集合，AA 油费，会开车优先，轮流驾驶。','四川·成都',10),{rt:'swap',rtext:'AA 分摊费用',scope:'跨省',slots:4,joined:2}),
+ x(mk('周末城市徒步搭子（每周六）','搭子组队','swap',0,30,'驻场',0,'小北',95,'每周六早 8 点集合，约 15 公里，新手友好。','北京',13),{rt:'free',rtext:'免费，AA 零食',scope:'同城',slots:6,joined:3}),
+ x(mk('免费教你 Python 入门（每周 1 次，共 4 周）','教育辅导','swap',0,28,'远程',0,'晓晴',650,'免费带 3 位零基础同学入门，作业互相打卡。','',15),{rt:'free',rtext:'免费教学',scope:'远程',slots:3,joined:1})
+];}
+function load(){try{var s=JSON.parse(localStorage.getItem(KEY));if(s&&s.tasks&&s.ledger)return s;}catch(e){}return seed();}
+function save(){try{localStorage.setItem(KEY,JSON.stringify(S));}catch(e){}}
+function esc(s){return String(s).replace(/[&<>"']/g,function(c){return {'&':'&amp;','<':'&lt;','>':'&gt;','"':'&quot;',"'":'&#39;'}[c];});}
+function credit(){return S.ledger.reduce(function(a,l){return a+l.d;},0);}
+function lvOf(c){var r=LV[0];LV.forEach(function(l){if(c>=l.m)r=l;});return r;}
+function nextLv(c){for(var i=0;i<LV.length;i++)if(c<LV[i].m)return LV[i];return null;}
+function add(d,r){S.ledger.unshift({d:d,r:r,ts:Date.now()});}
+function find(id){return S.tasks.filter(function(t){return t.id===id;})[0];}
+function rtOf(t){return t.rt||(t.kind==='charity'?'point':'money');}
+function scopeOf(t){return t.scope||(t.mode==='远程'?'远程':'同城');}
+function rw(t){var r=rtOf(t);return r==='money'?'¥'+t.reward:r==='point'?t.reward+' 公益积分':(t.rtext||RT[r]);}
+var tt;function toast(m){var e=document.getElementById('toast');e.textContent=m;e.classList.add('on');clearTimeout(tt);tt=setTimeout(function(){e.classList.remove('on');},2200);}
+
+/* 渲染 */
+function head(){
+  var c=credit(),l=lvOf(c);
+  document.getElementById('me').innerHTML='我的信用<b>'+c+'</b>'+l.n;
+  var tabs=[['home','🏠','首页'],['plaza','📋','大厅'],['post','➕','发布'],['exp','💡','经验'],['credit','👤','我的']];
+  document.getElementById('nav').innerHTML=tabs.map(function(t){return '<button data-tab="'+t[0]+'" class="'+(ui.tab===t[0]?'on':'')+'"><span class="ic">'+t[1]+'</span>'+t[2]+'</button>';}).join('');
+  document.getElementById('more').innerHTML=ui.more?[['chat','💬 聊天与好友'],['mine','🧾 我的内容'],['service','🛟 调解客服'],['scam','🚫 骗局展示'],['rank','🏆 排行榜'],['rules','📜 规则与安全'],['admin','🛠 管理后台']].map(function(t){return '<button data-tab="'+t[0]+'">'+t[1]+'</button>';}).join(''):'';
+}
+function b(a,txt,id,cls){return '<button class="btn '+(cls||'')+'" data-act="'+a+'" data-id="'+id+'">'+txt+'</button>';}
+function btns(t){
+  var h='',c=trust(),mp=t.poster==='我',mt=t.taker==='我';
+  if(t.status==='open'){
+    if(mp)h+='<div class="meta" style="width:100%">平台已为你匹配（信用和服务态度优先）：</div>'+(match(t).map(function(u){return b('invite','邀请 '+esc(u.n)+'（信用'+u.c+' · 服务'+u.s+'）',t.id,'').replace('data-id','data-u="'+esc(u.n)+'" data-id');}).join('')||'<span class="warn">暂无满足信用要求的候选人</span>')+b('boost','加价/续期',t.id,'')+b('cancel','撤销',t.id,'link');
+    else if(c<t.min)h+='<span class="warn">需信用 ≥ '+t.min+'，你当前 '+credit()+'</span>';
+    else if(t.slots)h+=t.im?'<span class="meta">已加入，等待成行（还差 '+(t.slots-(t.joined||0))+' 人）</span>'+b('simJoin','演示：模拟成员加入',t.id):b('join','一键加入小队',t.id,'pri');
+    else h+=b('take','一键领取',t.id,'pri');
+  }else if(t.status==='doing'){
+    if(mt)h+=b('submit','提交成果',t.id,'pri')+b('abandon','放弃（扣 15 分）',t.id,'link');
+    else if(mp)h+=b('simSubmit','演示：模拟对方提交成果',t.id)+b('reassign','对方超时，换人',t.id,'link');
+  }else if(t.status==='submitted'){
+    if(mp)h+='<span class="meta">验收并评分：</span>'+[1,2,3,4,5].map(function(r){return '<button class="star" data-act="accept" data-id="'+t.id+'" data-r="'+r+'">'+r+'★</button>';}).join('');
+    else if(mt)h+=b('simAccept','演示：模拟发布者验收',t.id);
+  }
+  if(!mp&&t.status!=='done'&&t.status!=='cancelled')h+=(ui.rep===t.id?['虚假信息','要求提前转账','涉嫌欺诈','线下安全风险'].map(function(w){return b('repWhy',w,t.id,'').replace('data-id','data-w="'+w+'" data-id');}).join(''):b('report','举报',t.id,'link'));
+  return h;
+}
+function card(t){
+  var ch=t.kind==='charity',days=t.days+' 天内';
+  return '<article class="card '+(ch?'ch':'')+(t.cat==='江湖救急'?' sos':'')+'" data-card="'+t.id+'">'+
+  '<div class="tags">'+(ch?'<span class="tag ch">公益</span>':'')+(t.kind==='swap'?'<span class="tag ch">互助</span>':'')+'<span class="tag">'+esc(t.cat)+(t.skill?'·'+esc(t.skill):'')+'</span>'+(t.th?'<span class="tag" style="background:var(--goodBg);color:var(--good)">'+esc(t.th)+'</span>':'')+(t.team?'<span class="tag">👥 组队</span>':'')+'<span class="tag">'+scopeOf(t)+'</span><span class="tag">'+esc(t.mode)+(t.loc?'·'+esc(t.loc):'')+'</span><span class="tag st">'+ST[t.status]+'</span></div>'+
+  '<h3 data-act="dopen" data-id="t:'+t.id+'" style="cursor:pointer">'+esc(t.t)+'<span style="color:var(--mut)"> ›</span></h3><p class="desc" data-act="dopen" data-id="t:'+t.id+'">'+esc(t.desc)+'</p>'+
+  '<div class="rw">'+rw(t)+'</div>'+
+  '<div class="meta"><span>'+days+'完成</span><span>要求信用 ≥ '+t.min+'</span>'+(rtOf(t)==='money'?'<span>🔒 赏金托管（演示）</span>':'')+(t.slots?'<span>👥 '+(t.joined||0)+' / '+t.slots+' 人</span>':'')+(t.dep?'<span class="tag ch">🛡 已交定金 ¥'+t.dep+'，平台担保（收 10%）</span>':'')+(t.rating?'<span>评分 '+t.rating+'★</span>':'')+(t.status==='open'&&ageH(t)>24?'<span class="warn">⏳ 已 '+Math.floor(ageH(t))+' 小时无人领取'+(t.poster==='我'?'，建议加价或续期':'')+'</span>':'')+'</div>'+
+  '<div class="meta"><span>发布者：'+(t.poster==='我'?'我':esc(t.poster)+'（信用 '+t.pc+'）')+'</span>'+(t.taker?'<span>接单人：'+esc(t.taker)+'</span>':'')+'</div>'+
+  '<div class="act">'+btns(t)+'</div></article>';
+}
+function grid(){
+  var l=S.tasks.filter(function(t){
+    if(t.status==='cancelled')return false;
+    if(ui.open&&t.status!=='open')return false;
+    if(ui.cat&&t.cat!==ui.cat)return false;
+    if(ui.kind&&t.kind!==ui.kind)return false;
+    if(ui.mode&&t.mode!==ui.mode)return false;
+    if(ui.scope&&scopeOf(t)!==ui.scope)return false;
+    if(ui.dep&&!t.dep)return false;
+    if(ui.skill&&t.skill!==ui.skill)return false;
+    if(sus(t))return false;
+    if(ui.q&&(t.t+t.desc+(t.th||'')+(t.loc||'')).indexOf(ui.q)<0)return false;
+    return true;
+  });
+  l.sort(function(a,b){
+    if(ui.sort==='reward')return b.reward-a.reward;
+    if(ui.sort==='soon')return a.days-b.days;
+    if(ui.sort==='charity')return (b.kind==='charity')-(a.kind==='charity')||b.ts-a.ts;
+    return b.ts-a.ts;
+  });
+  var tot=l.length;
+  document.getElementById('grid').innerHTML=(tot?l.slice(0,ui.lim).map(card).join(''):'<div class="empty">没有符合条件的任务，换个筛选看看，或者自己发布一个。</div>')+(tot>ui.lim?'<div style="grid-column:1/-1;text-align:center"><button class="btn" data-act="more">加载更多（还有 '+(tot-ui.lim)+' 个）</button></div>':'');
+}
+function opts(arr,cur,all){return '<option value="">'+all+'</option>'+arr.map(function(x){return '<option'+(x===cur?' selected':'')+'>'+x+'</option>';}).join('');}
+function plaza(){
+  return (S.notice?'<div class="panel" style="padding:10px 14px">📢 '+esc(S.notice)+'</div>':'')+quickBox()+'<div class="bar"><input id="q" data-f="q" placeholder="搜索任务关键词" value="'+esc(ui.q)+'">'+
+  '<select data-f="cat">'+opts(CATS,ui.cat,'全部行业')+'</select>'+
+  '<select data-f="kind"><option value="">全部类型</option><option value="paid"'+(ui.kind==='paid'?' selected':'')+'>只看悬赏</option><option value="charity"'+(ui.kind==='charity'?' selected':'')+'>只看公益</option><option value="swap"'+(ui.kind==='swap'?' selected':'')+'>只看互助免费</option></select>'+'<select data-f="scope">'+opts(['远程','同城','跨省','跨国'],ui.scope,'全部范围')+'</select>'+'<select data-f="skill">'+opts(allSkills(),ui.skill,'全部职业技能')+'</select>'+
+  '<select data-f="mode">'+opts(['远程','驻场'],ui.mode,'远程和驻场')+'</select>'+
+  '<select data-f="sort"><option value="new">最新发布</option><option value="reward"'+(ui.sort==='reward'?' selected':'')+'>赏金最高</option><option value="soon"'+(ui.sort==='soon'?' selected':'')+'>最快截止</option><option value="charity"'+(ui.sort==='charity'?' selected':'')+'>公益优先</option></select>'+
+  '<label><input type="checkbox" data-f="open"'+(ui.open?' checked':'')+'> 只看待接单</label><label><input type="checkbox" data-f="dep"'+(ui.dep?' checked':'')+'> 只看平台担保</label></div><div class="grid" id="grid"></div>';
+}
+function post(){
+  return '<div class="panel"><h2>发布任务</h2><div class="form">'+
+  '<label class="full">任务标题<input id="pt" maxlength="40" placeholder="例如：帮我整理一份客户名单"></label>'+
+  '<label>类型<select id="pk"><option value="paid">悬赏任务（付报酬）</option><option value="charity">公益任务（给公益积分）</option><option value="swap">互助免费（提供或互换）</option></select></label>'+'<label>奖励形式<select id="prt"><option value="money">金钱</option><option value="lodge">包吃包住</option><option value="gift">礼品或体验</option><option value="swap">技能互换</option><option value="free">免费互助</option><option value="point">公益积分</option></select></label>'+'<label>奖励说明（非金钱时填，如“包三餐含床位”）<input id="prx" maxlength="30"></label>'+'<label>范围<select id="psc"><option>远程</option><option>同城</option><option>跨省</option><option>跨国</option></select></label>'+'<label>需要几人（组队填 2 以上，单人填 0）<input id="psl" type="number" min="0" value="0"></label>'+'<label>定金（元，交给平台担保，可不填）<input id="pdp" type="number" min="0" value="0"></label>'+'<label class="full">任务要求（可选，用分号分隔）<textarea id="prq" rows="2" maxlength="200" placeholder="例如：有高原经验；提供真实资料"></textarea></label><label class="full">规则（可选）<textarea id="pru" rows="2" maxlength="200" placeholder="例如：费用 AA；中途退出提前告知"></textarea></label><label class="full">注意事项（可选）<textarea id="pnt" rows="2" maxlength="200" placeholder="例如：注意安全；保留聊天记录"></textarea></label>'+'<p class="sub" style="grid-column:1/-1">参考价（每天）：技术开发 ¥300、设计 ¥200、写作翻译 ¥120、教育辅导 ¥100、运营 ¥150、数据整理 ¥80、生活服务 ¥50。低于参考价 30% 不能发布；金额 ≥ ¥1000 的任务，接单者信用至少 80；交定金的任务会显示“平台担保”，平台对担保任务收取 10% 服务费，其他任务完全免费。</p>'+
+  '<label>行业<select id="pc">'+CATS.map(function(c){return '<option>'+c+'</option>';}).join('')+'</select></label>'+'<label>专属技能（没有你的职业就选“其他”）<select id="psk"><option value="">不指定</option>'+PROFS.map(function(p){return '<option>'+p.n+'</option>';}).join('')+'<option value="__other">其他（自己输入）</option></select></label><label>自己输入职业或技能名<input id="psk2" maxlength="12" placeholder="选了“其他”才填，如：非遗剪纸"></label>'+
+  '<label>报酬（悬赏填元，公益填公益积分）<input id="pr" type="number" min="0" value="100"></label>'+
+  '<label>几天内完成<input id="pd" type="number" min="1" value="3"></label>'+
+  '<label>方式<select id="pm"><option>远程</option><option>驻场</option></select></label>'+
+  '<label>驻场地点（远程可不填）<input id="pl" maxlength="20"></label>'+
+  '<label>接单者最低信用<select id="pn"><option value="0">0（新手可接）</option><option value="80">80（铜牌）</option><option value="150">150（银牌）</option><option value="300">300（金牌）</option><option value="450">450（金牌以上）</option><option value="600">600（钻石）</option></select></label>'+
+  '<label class="full">任务描述和验收标准<textarea id="pds" rows="4" maxlength="400" placeholder="写清楚要做什么、做到什么程度算完成"></textarea></label>'+
+  '</div><p class="sub">悬赏任务发布后，赏金会进入平台托管，验收通过才付给接单人（演示）。起步别想太大，先把一单说清楚。</p><button class="btn pri" data-act="post">发布</button></div>';
+}
+function mine(){
+  var T=[['all','全部'],['post','我发布的'],['take','我领取的'],['rev','评价'],['exp','经验与收藏'],['chat','聊天']];
+  return '<div class="panel"><h2>🧾 我的内容</h2><p class="sub">我发布和领取的任务、我的评价、经验分享、收藏和聊天，都能在这里找到。</p><div class="bar"><input data-f="mq" id="mq" placeholder="在我的内容里搜索" value="'+esc(ui.mq||'')+'"></div><div class="tags">'+T.map(function(x){return '<button class="btn '+((ui.mt||'all')===x[0]?'pri':'')+'" data-act="mt" data-id="'+x[0]+'">'+x[1]+'</button>';}).join('')+'</div></div><div id="minebody"></div>';
+}
+function mineBody(){
+  var q=ui.mq||'',tb=ui.mt||'all',hit=function(z){return !q||z.indexOf(q)>=0;};
+  var P=S.tasks.filter(function(x){return x.poster==='我'&&hit(x.t+x.desc);}),K=S.tasks.filter(function(x){return x.taker==='我'&&hit(x.t+x.desc);});
+  var RV=S.tasks.filter(function(x){return x.rating&&(x.poster==='我'||x.taker==='我')&&hit(x.t+(x.review||''));});
+  var EX=S.exp.filter(function(p){return (p.u==='我'||p.faved||p.cm.some(function(c){return c.u==='我';}))&&hit(p.t+p.c);});
+  var h='';
+  function blk(title,arr,fn,empty){return '<div class="panel"><h2>'+title+'（'+arr.length+'）</h2><div class="grid">'+(arr.map(fn).join('')||'<div class="empty">'+empty+'</div>')+'</div></div>';}
+  if(tb==='all'||tb==='post')h+=blk('我发布的任务',P,function(x){return card(x);},'还没有发布过任务。');
+  if(tb==='all'||tb==='take')h+=blk('我领取的任务',K,function(x){return card(x);},'还没有领取过任务，去大厅看看。');
+  if(tb==='all'||tb==='rev')h+=blk('我的评价',RV,function(x){return '<article class="card ch"><div class="tags"><span class="tag ch">'+'★'.repeat(x.rating)+'</span><span class="tag">'+(x.taker==='我'?'我收到的评价':'我给出的评价')+'</span></div><h3 data-act="dopen" data-id="r:'+x.id+'" style="cursor:pointer">'+esc(x.t)+' ›</h3><p class="desc" data-act="dopen" data-id="r:'+x.id+'">“'+esc(x.review||'（未写文字评价）')+'”</p></article>';},'还没有评价，完成任务后会出现在这里。');
+  if(tb==='all'||tb==='exp')h+=blk('我的经验与收藏',EX,function(p){return '<article class="card"><div class="tags"><span class="tag">'+(p.u==='我'?'我发布':p.faved?'我收藏':'我评论过')+'</span><span class="tag">'+esc(p.cat)+'</span></div><h3 data-act="dopen" data-id="x:'+p.id+'" style="cursor:pointer">'+esc(p.t)+' ›</h3><p class="desc" data-act="dopen" data-id="x:'+p.id+'">'+esc(p.c)+'</p></article>';},'还没有发布或收藏经验。');
+  if(tb==='all'||tb==='chat')h+='<div class="panel"><h2>我的聊天</h2><p><button class="btn pri" data-tab="chat">打开聊天与好友</button></p></div>';
+  document.getElementById('minebody').innerHTML=h;
+}
+function stats(){
+  var k=S.tasks.filter(function(t){return t.taker==='我'&&t.status==='done';});
+  var ch=k.filter(function(t){return t.kind==='charity';});
+  var avg=k.length?(k.reduce(function(a,t){return a+t.rating;},0)/k.length).toFixed(1):'-';
+  return {done:k.length,avg:avg,chN:ch.length,chPts:gyPts(),posted:S.tasks.filter(function(t){return t.poster==='我';}).length};
+}
+function match(t){return USERS.filter(function(u){return u.c>=t.min;}).sort(function(a,b){return (b.c*0.7+b.s*20+b.k*0.1)-(a.c*0.7+a.s*20+a.k*0.1);}).slice(0,3);}
+function quickBox(){return '<div class="panel" style="padding:12px 14px"><div class="bar" style="margin:0"><input id="qt" maxlength="40" style="flex:1;min-width:200px" placeholder="一句话说出你的需求，例如：找人拼车去大理"><select id="qr"><option value="m50">奖励 ¥50</option><option value="m200">奖励 ¥200</option><option value="lodge">包吃包住</option><option value="swap">技能互换</option><option value="free">免费互助</option><option value="p20">公益积分 20</option></select><button class="btn pri" data-act="quick">一键发布</button></div></div>';}
+function guess(s){return /租|房|住/.test(s)?'租房住宿':/搭子|拼|组队|一起|同行/.test(s)?'搭子组队':/旅|义工|换宿/.test(s)?'义工旅行':/设计|海报|logo/i.test(s)?'设计创意':/代码|开发|网站|程序/.test(s)?'技术开发':/翻译|写|文案/.test(s)?'写作翻译':/辅导|教|课/.test(s)?'教育辅导':/运营|推广|视频/.test(s)?'运营推广':/数据|表格|录入/.test(s)?'数据整理':'生活服务';}
+function quick(){
+  var s=v('qt'),p=v('qr');if(!s){toast('先写一句话，说说你的需求');return;}
+  var o={m50:{kind:'paid',rt:'money',reward:50},m200:{kind:'paid',rt:'money',reward:200},lodge:{kind:'swap',rt:'lodge',reward:0,rtext:'包吃包住'},swap:{kind:'swap',rt:'swap',reward:0,rtext:'技能互换'},free:{kind:'swap',rt:'free',reward:0,rtext:'免费互助'},p20:{kind:'charity',rt:'point',reward:20}}[p];
+  var t={id:'m'+Date.now(),t:s,cat:guess(s),kind:o.kind,rt:o.rt,rtext:o.rtext||'',reward:o.reward,days:3,mode:'远程',scope:'远程',loc:'',min:0,poster:'我',pc:credit(),desc:s+'（一键发布，细节可与接单人沟通）',status:'open',taker:null,rating:0,ts:Date.now()};
+  S.tasks.unshift(t);save();ui.tab='mine';render();toast('已发布，平台为你匹配了 '+match(t).length+' 位候选人');
+}
+function panelPass(){
+  var c=credit(),l=lvOf(c),k=S.tasks.filter(function(t){return t.taker==='我'&&t.status==='done';});
+  var fr=k.filter(function(t){return rtOf(t)!=='money';}).length,pd=k.length-fr,pl={};
+  k.forEach(function(t){if(t.loc)pl[t.loc]=1;if(scopeOf(t)==='跨国')pl['海外']=1;});
+  var ks=Object.keys(pl);
+  var B=[['初出茅庐','完成第 1 个任务',k.length>=1],['公益新星','完成 1 个公益任务',k.some(function(t){return t.kind==='charity';})],['搭子达人','完成 1 次组队任务',k.some(function(t){return t.cat==='搭子组队';})],['环游新手','去过 2 个以上地点',ks.length>=2],['国际友人','完成跨国任务',k.some(function(t){return scopeOf(t)==='跨国';})],['金牌信用','信用达到 300',c>=300]];
+  var P=[['铜牌（80 分）','免押金，可接要求 80 分的任务'],['银牌（150 分）','可享用免费互助和免费住宿类机会'],['金牌（300 分）','可参加跨国义工和换宿项目'],['钻石（600 分）','发布任务优先匹配，获得平台推荐位']];
+  return '<div class="panel"><h2>有信走遍天下：我的面板</h2><p><button class="btn" data-act="go" data-id="mine">🧾 我的任务</button> <button class="btn" data-act="go" data-id="service">🛟 调解客服</button></p><div class="stats"><div><b>'+k.length+'</b>完成项目（有偿 '+pd+'，免费或公益 '+fr+'）</div><div><b>'+ks.length+'</b>足迹：'+(ks.length?esc(ks.join('、')):'还没有')+'</div><div><b>'+l.n+'</b>当前等级</div><div><b>'+gyPts()+'</b>公益积分（与信用分开）</div></div><div class="tags" style="margin-top:10px">'+B.map(function(x){return '<span class="tag '+(x[2]?'ch':'')+'" style="'+(x[2]?'':'opacity:.55')+'">'+(x[2]?'🏅 ':'🔒 ')+x[0]+'（'+x[1]+'）</span>';}).join('')+'</div><p class="sub" style="margin-top:10px">信用越高，能免费享用和参与的越多：'+P.map(function(p){return '<br>· <b>'+p[0]+'</b>：'+p[1];}).join('')+'</p></div>';
+}
+function creditTab(){
+  var c=credit(),l=lvOf(c),n=nextLv(c),s=stats();
+  var pr=n?Math.round((c-l.m)/(n.m-l.m)*100):100;
+  return ckPanel()+panelPass()+'<div class="two"><div class="panel"><h2>我的信用</h2><div class="score">'+c+'</div><div>当前等级：<b>'+l.n+'</b>'+(n?'，再积 '+(n.m-c)+' 分升到'+n.n:'，已是最高等级')+'</div><div class="prog"><i style="width:'+pr+'%"></i></div>'+
+  '<div class="stats"><div><b>'+s.done+'</b>完成接单</div><div><b>'+s.avg+'</b>平均评分</div><div><b>'+s.chN+'</b>公益次数</div><div><b>'+s.chPts+'</b>公益积分</div><div><b>'+s.posted+'</b>发布任务</div></div></div>'+
+  '<div class="panel"><h2>信用规则</h2><ul class="led" style="list-style:disc;padding-left:18px"><li style="display:list-item;border:0">新用户初始 50 分</li><li style="display:list-item;border:0">完成接单：+8 加上评分的 2 倍（4 星得 16 分）</li><li style="display:list-item;border:0">信用积分和公益积分是两套体系：信用记你守不守约，公益积分记你做了多少公益，互不兑换</li><li style="display:list-item;border:0">每天信用最多涨 30 分；与同一发布者重复合作会递减；金额过低的单子只记 1 分</li><li style="display:list-item;border:0">发布者验收评价：+4（公益 +8）</li><li style="display:list-item;border:0">接单后中途放弃：−15</li><li style="display:list-item;border:0">高信用才能接高要求的任务，新手从小单开始</li><li style="display:list-item;border:0">涉及住宿、跨国、线下见面的任务，需实名认证和人工审核（规划中）</li></ul></div></div>'+
+  (s.chN?'<div class="cert" style="margin-bottom:14px"><div>公益志愿证书（演示）</div><b>志愿者「我」</b><div>已完成 '+s.chN+' 次公益任务，累计 '+s.chPts+' 公益积分</div></div>':'')+
+  '<div class="panel"><h2>信用记录</h2><ul class="led">'+S.ledger.slice(0,30).map(function(x){return '<li><span>'+esc(x.r)+'</span><span class="'+(x.d>=0?'pos':'neg')+'">'+(x.d>=0?'+':'')+x.d+'</span></li>';}).join('')+'</ul><p><button class="btn" data-act="reset">清空演示数据</button></p></div>';
+}
+function rank(){
+  var s=stats(),c=credit();
+  var base=[['星河工作室',420,36],['青禾农场',260,0],['云帆科技',330,12],['暖爪救助站',240,90],['星火支教',390,160],['社区服务站',280,120],['无碍同行',310,75],['小满设计',210,10]];
+  base.push(['我',c,s.chPts]);
+  function ol(a,idx){return '<ol class="rank">'+a.slice().sort(function(x,y){return y[idx]-x[idx];}).slice(0,8).map(function(x){return '<li class="'+(x[0]==='我'?'m':'')+'">'+esc(x[0])+'：'+x[idx]+'</li>';}).join('')+'</ol>';}
+  return '<div class="two"><div class="panel"><h2>信用榜</h2>'+ol(base,1)+'</div><div class="panel"><h2>公益榜（公益积分）</h2>'+ol(base,2)+'</div></div>';
+}
+var adm={
+  adm_tab:function(a){ui.at=a.getAttribute('data-id');},
+  adm_del:function(a){var t=find(a.getAttribute('data-id'));if(t&&confirm('确定下架这个任务吗？')){t.status='cancelled';toast('已下架');}},
+  adm_res:function(a){
+    var r=S.reports.filter(function(x){return x.id===a.getAttribute('data-id');})[0],ok=a.getAttribute('data-r')==='ok';
+    if(!r)return;r.st=ok?'valid':'rejected';
+    var t=find(r.tid);
+    if(ok&&t){t.status='cancelled';if(t.poster==='我')add(-20,'被举报属实：'+t.t);}
+    if(!ok&&r.by==='我'){add(-5,'举报不成立，扣 5 分');S.misrep=(S.misrep||0)+1;}
+    toast(ok?'举报成立，任务已下架':'已驳回举报'+(r.by==='我'?'，举报者扣 5 分':''));
+  },
+  adm_adj:function(){var n=parseInt(v('aj'),10),why=v('ajr');if(!n||!why){toast('请填写分值和原因');return;}add(n,'平台调整：'+why);toast('已调整信用 '+(n>0?'+':'')+n);},
+  adm_black:function(){var n=v('bn'),w=v('bw');if(!n||!w){toast('请填写账号和违规行为');return;}S.black.unshift({n:n,w:w,p:v('bp')||'永久封禁',d:new Date().toISOString().slice(0,10)});toast('已加入黑名单并公示');},
+  adm_unban:function(a){S.black.splice(parseInt(a.getAttribute('data-id'),10),1);toast('已解除');},
+  adm_warn:function(a){var t=find(a.getAttribute('data-id'));if(!t)return;t.status='cancelled';warn(t.poster,'发布杂乱或违规任务「'+t.t+'」');},
+  adm_clear:function(a){var t=find(a.getAttribute('data-id'));if(t){t.ok=1;toast('已标记为无问题');}},
+  adm_case:function(a){var c=(S.cases||[]).filter(function(x){return x.id===a.getAttribute('data-id');})[0];if(c){c.st=a.getAttribute('data-r')==='ok'?'调解成功':'调解失败';toast(c.st);}},
+  adm_notice:function(){S.notice=v('an');toast(S.notice?'公告已发布到任务广场':'公告已清除');}
+};
+function admin(){
+  var T=S.tasks,pend=S.reports.filter(function(r){return r.st==='pending';});
+  var tabs=[['ov','数据概览'],['tasks','任务管理'],['reports','举报处理'],['credit','信用调整'],['notice','平台公告'],['black','黑名单'],['cases','调解'],['probe','调查部']];
+  var h='<div class="bar">'+tabs.map(function(x){return '<button class="btn '+(ui.at===x[0]?'pri':'')+'" data-act="adm_tab" data-id="'+x[0]+'">'+x[1]+(x[0]==='reports'?'（'+pend.length+'）':'')+'</button>';}).join('')+'</div>';
+  function cnt(s){return T.filter(function(t){return t.status===s;}).length;}
+  function sum(f){return T.filter(f).reduce(function(a,t){return a+t.reward;},0);}
+  if(ui.at==='ov'){
+    h+='<div class="panel"><h2>平台概览</h2><div class="stats"><div><b>'+T.length+'</b>任务总数</div><div><b>'+cnt('open')+'</b>待接单</div><div><b>'+(cnt('doing')+cnt('submitted'))+'</b>进行中</div><div><b>'+cnt('done')+'</b>已完成</div><div><b>¥'+sum(function(t){return t.kind==='paid'&&(t.status==='doing'||t.status==='submitted');})+'</b>托管中赏金</div><div><b>¥'+sum(function(t){return t.kind==='paid'&&t.status==='done';})+'</b>已结算赏金</div><div><b>'+T.filter(function(t){return t.kind==='charity'&&t.status==='done';}).length+'</b>完成公益任务</div><div><b>'+pend.length+'</b>待处理举报</div></div>'+incomePanel()+'<p class="sub">演示数据只来自当前浏览器。真实平台的后台会汇总所有用户的数据，且需要管理员登录。</p></div>';
+  }else if(ui.at==='tasks'){
+    h+='<div class="panel"><h2>任务管理</h2><ul class="led">'+T.map(function(t){return '<li><span>'+(t.kind==='charity'?'[公益] ':'')+esc(t.t)+' · '+rw(t)+' · '+ST[t.status]+' · '+esc(t.poster)+'</span><span>'+((t.status==='cancelled'||t.status==='done')?'':b('adm_del','下架',t.id,'link'))+'</span></li>';}).join('')+'</ul></div>';
+  }else if(ui.at==='reports'){
+    h+='<div class="panel"><h2>举报处理</h2><ul class="led">'+(S.reports.map(function(r){var t=find(r.tid);return '<li><span>'+esc(t?t.t:'已删除任务')+'：'+esc(r.why)+'（'+esc(r.by)+'）</span><span>'+(r.st==='pending'?'<button class="btn" data-act="adm_res" data-id="'+r.id+'" data-r="ok">举报成立</button> <button class="btn link" data-act="adm_res" data-id="'+r.id+'" data-r="no">驳回</button>':(r.st==='valid'?'已成立':'已驳回'))+'</span></li>';}).join('')||'<li>暂无举报</li>')+'</ul><p class="sub">举报成立会下架任务，若是“我”发布的任务会扣 20 信用分。</p></div>';
+  }else if(ui.at==='credit'){
+    h+='<div class="panel"><h2>信用调整（对“我”）</h2><p>当前信用：<b>'+credit()+'</b></p><div class="form"><label>分值（正数加分，负数扣分）<input id="aj" type="number" placeholder="-10"></label><label>原因（会记入信用记录）<input id="ajr" maxlength="30"></label></div><p><button class="btn pri" data-act="adm_adj">确认调整</button></p></div>';
+  }else if(ui.at==='cases'){h+=casesPanel();}else if(ui.at==='probe'){h+=probePanel();}else if(ui.at==='black'){
+    h+=blackPanel();
+  }else{
+    h+='<div class="panel"><h2>平台公告</h2><textarea id="an" rows="3" maxlength="120" style="width:100%" placeholder="显示在任务广场顶部，留空则清除">'+esc(S.notice)+'</textarea><p><button class="btn pri" data-act="adm_notice">发布</button></p></div>';
+  }
+  return h;
+}
+function ageH(t){return (Date.now()-t.ts)/3.6e6;}
+function gyPts(){return (S.gy||[]).reduce(function(a,l){return a+l.d;},0);}
+function banned(){return credit()<20||S.black.some(function(b){return b.n==='我';});}
+function todayGain(){var d=Date.now()-864e5;return S.ledger.filter(function(x){return x.k==='task'&&x.ts>d;}).reduce(function(a,x){return a+x.d;},0);}
+function guard(){
+  if(banned()){toast('你的账号已被限制接单（信用低于 20 或在黑名单中），详见规则与安全');return false;}
+  var n=S.tasks.filter(function(x){return x.taker==='我'&&(x.status==='doing'||x.status==='submitted');}).length,l=lvOf(credit()),mx=MAXACT[LV.indexOf(l)];
+  if(n>=mx){toast('你同时进行的任务已达 '+mx+' 个上限（'+l.n+'），先完成再接');return false;}
+  return true;
+}
+function ul(a){return '<ul class="led" style="list-style:disc;padding-left:18px">'+a.map(function(x){return '<li style="display:list-item;border:0">'+x+'</li>';}).join('')+'</ul>';}
+function init3(){
+  var n=Date.now();S.gy=[];S.misrep=0;
+  S.black=[{n:'用户*3821',w:'发布“先垫付再返现”的刷单任务',p:'永久封禁',d:'2026-09-02'},{n:'用户*9047',w:'接单后失联，累计 3 次',p:'限制接单 30 天',d:'2026-09-15'},{n:'用户*1156',w:'开小号互刷信用',p:'永久封禁，积分清零',d:'2026-10-01'},{n:'用户*7720',w:'要求线下私下转账',p:'永久封禁',d:'2026-10-12'},{n:'用户*5589',w:'恶意举报他人 3 次',p:'暂停举报 30 天',d:'2026-10-20'}];
+  S.talk=[{id:'c1',u:'小林',k:'问题',txt:'新手没有信用，怎么接到第一单？',ts:n-7e6,likes:5},{id:'c2',u:'阿宁',k:'建议',txt:'希望增加“同城搭子”筛选，比如只看今天能成行的。',ts:n-5e6,likes:9},{id:'c3',u:'老周',k:'想法',txt:'可以做“信用担保人”：高信用的人给新人背书。',ts:n-3e6,likes:12},{id:'c4',u:'晓晴',k:'吐槽',txt:'有个任务一直没人接，是不是价格太低了？',ts:n-1e6,likes:3}];
+}
+function rn(a,b){return Math.floor(a+Math.random()*(b-a+1));}
+function gen(o){
+  var rem=o.remote,min=o.price>=2000?150:o.price>=800?80:(Math.random()<.3?80:0);
+  var t=mk(o.t,o.cat,o.kind,o.price,o.days||rn(1,14),rem?'远程':'驻场',min,POSTERS[rn(0,15)],rn(80,500),o.t+'。'+(rem?'线上沟通交付':'线下到场')+'，验收标准请先在沟通里确认。',rem?'':CITY[rn(0,9)],Math.random()<.06?rn(25,60):rn(1,23));
+  t.scope=o.scope||(rem?'远程':'同城');
+  if(o.skill)t.skill=o.skill;if(o.rt)t.rt=o.rt;if(o.rtext)t.rtext=o.rtext;
+  if(o.slots){t.slots=o.slots;t.joined=rn(0,o.slots-1);}
+  return t;
+}
+function seed4(){
+  var L=[];
+  PROFS.forEach(function(p){
+    p.t.forEach(function(ph,i){
+      var pr=Math.round(p.p*(0.8+Math.random()*0.5)/10)*10,b={cat:'专属技能',skill:p.n,remote:p.r};
+      L.push(gen(Object.assign({t:ph,kind:'paid',price:pr},b)));
+      if(i<3)L.push(gen(Object.assign({t:ph+(i%2?'（长期合作，按月）':'（加急）'),kind:'paid',price:Math.round(pr*1.4/10)*10},b)));
+      else if(i===3)L.push(gen(Object.assign({t:ph+'（技能互换）',kind:'swap',price:0,rt:'swap',rtext:'技能互换，免费'},b)));
+      else L.push(gen(Object.assign({t:'公益：'+ph,kind:'charity',price:rn(2,5)*10},b)));
+    });
+  });
+  CD.forEach(function(l){
+    var a=l.split('|'),kd=a[1],pr=+a[2];
+    a[7].split(',').forEach(function(ph){
+      var rw=kd==='charity'?rn(2,6)*10:Math.round(pr*(0.7+Math.random()*0.8)/10)*10;
+      var o={t:ph,cat:a[0],kind:kd,price:rw,remote:+a[3],rt:a[4]==='money'?'':a[4],rtext:a[4]==='lodge'?a[5]+' + '+rw+' 公益积分':a[5]};
+      if(+a[6])o.slots=rn(2,6);
+      if(a[0]==='义工旅行')o.scope=ph.indexOf('海外')>=0?'跨国':'跨省';
+      L.push(gen(o));
+    });
+  });
+  return L;
+}
+function today(){return new Date().toISOString().slice(0,10);}
+function warn(n,why){
+  S.warns=S.warns||{};var c=S.warns[n]=(S.warns[n]||0)+1;
+  if(n==='我')add(-10*c,'收到第 '+c+' 次警告：'+why);
+  if(c>=3){S.black.unshift({n:n,w:'累计 3 次警告：'+why,p:'封号',d:today()});toast(n==='我'?'你已被封号（累计 3 次警告）':n+' 已被封号');}
+  else toast((n==='我'?'你':n)+'收到第 '+c+' 次警告（满 3 次封号）：'+why);
+}
+function sus(t){
+  if(t.ok||t.status==='cancelled'||t.status==='done')return '';
+  if(BAD.test(t.t+t.desc))return '含违规词';
+  if((t.desc||'').length<12)return '描述过短，信息不清';
+  if(/(.)\1{3,}|[!！]{3,}/.test(t.t))return '标题含大量重复字符或感叹号';
+  if(S.tasks.filter(function(x){return x.poster===t.poster&&x.t===t.t&&x.status==='open';}).length>=2)return '同一发布者重复发布相同任务';
+  if(!t.th&&rtOf(t)==='money'&&REF[t.cat]&&t.reward>REF[t.cat]*t.days*4)return '报酬异常偏高';
+  return '';
+}
+function probePanel(){
+  var L=S.tasks.filter(function(t){return sus(t);}),W=S.warns||{};
+  return '<div class="panel"><h2>调查部：杂乱任务审查</h2><p class="sub">系统自动筛出可疑任务，并从大厅隐藏。调查员确认后可警告并下架，警告满 3 次封号。</p><ul class="led">'+(L.map(function(t){return '<li><span>'+esc(t.t)+'（'+esc(t.poster)+'）：<b>'+sus(t)+'</b></span><span>'+b('adm_warn','警告并下架',t.id,'')+b('adm_clear','无问题',t.id,'link')+'</span></li>';}).join('')||'<li>暂无可疑任务</li>')+'</ul></div><div class="panel"><h2>警告记录</h2><ul class="led">'+(Object.keys(W).map(function(n){return '<li><span>'+esc(n)+'</span><span>'+W[n]+' / 3 次</span></li>';}).join('')||'<li>暂无</li>')+'</ul><p class="sub">制度：第 1 次警告并下架，信用 −10；第 2 次 −20 并限制发布；第 3 次封号并公示。</p></div>';
+}
+function casesPanel(){
+  return '<div class="panel"><h2>调解受理</h2><ul class="led">'+((S.cases||[]).map(function(c){var t=find(c.tid);return '<li><span>'+esc(t?t.t:'任务')+'：'+c.st+'（'+(c.fee?'手续费 ¥'+c.fee:'免费')+'）</span><span>'+(c.st==='受理中'?'<button class="btn" data-act="adm_case" data-id="'+c.id+'" data-r="ok">调解成功</button> <button class="btn link" data-act="adm_case" data-id="'+c.id+'" data-r="no">调解失败</button>':'')+'</span></li>';}).join('')||'<li>暂无调解申请</li>')+'</ul></div>';
+}
+function service(){
+  var c=credit(),fr=c>=150;
+  var my=S.tasks.filter(function(t){return (t.poster==='我'||t.taker==='我')&&t.status!=='open'&&t.status!=='cancelled';});
+  return '<div class="panel"><h2>🛟 调解客服</h2><p>和对方在验收、赏金、服务上有分歧？先找调解客服，不用急着举报或给差评。</p>'+ul(['信用 ≥ 150（银牌及以上）：<b>免费申请</b>','信用不足 150：调解手续费 ¥20（演示），调解成功后退还','一般 24 小时内受理，需要双方在平台内提供聊天记录','你当前信用 '+c+'，'+(fr?'可以免费申请':'需支付 ¥20 手续费')])+'</div>'+
+  '<div class="panel"><h2>申请调解</h2>'+(my.length?'<ul class="led">'+my.map(function(t){return '<li><span>'+esc(t.t)+' · '+ST[t.status]+'</span>'+b('mediate','申请调解',t.id,'')+'</li>';}).join('')+'</ul>':'<div class="empty">你还没有进行中或已完成的任务，暂时不需要调解。</div>')+'</div>'+
+  '<div class="panel"><h2>我的调解记录</h2><ul class="led">'+((S.cases||[]).map(function(x){var t=find(x.tid);return '<li><span>'+esc(t?t.t:'任务')+'：'+x.st+'（'+(x.fee?'手续费 ¥'+x.fee:'免费')+'）</span></li>';}).join('')||'<li>暂无</li>')+'</ul></div>';
+}
+function mediate(id){
+  var t=find(id);if(!t)return;S.cases=S.cases||[];
+  if(S.cases.some(function(x){return x.tid===id&&x.st==='受理中';})){toast('这个任务已经在调解中');return;}
+  var fee=credit()>=150?0:(S.tix>0?(S.tix--,0):20);S.cases.unshift({id:'k'+Date.now(),tid:id,fee:fee,st:'受理中',ts:Date.now()});save();render();
+  toast(fee?'已受理，需支付调解费 ¥20（演示）':'已受理，你的信用高，免费调解');
+}
+function expScore(p){return p.likes+p.favs*2+p.shares*2+p.cm.length*3;}
+function seedExp(){
+  var U=['老周','晓晴','阿杰','Lily','小北','阿宁','陈老师','星河前辈'],C=['很实用，收藏了','说得对，我也踩过这个坑','感谢分享！','学到了'];
+  return EXPD.map(function(l,i){
+    var a=l.split('|'),cm=[],n=rn(0,2);
+    for(var k=0;k<n;k++)cm.push({u:U[rn(0,7)],txt:C[rn(0,3)],ts:Date.now()-rn(1,200)*36e5});
+    return {id:'x'+i,cat:a[0],t:a[1],c:a[2],u:U[rn(0,7)],ts:Date.now()-rn(1,500)*36e5,likes:rn(20,380),favs:rn(5,150),shares:rn(0,40),cm:cm};
+  });
+}
+function expTab(){
+  return '<div class="panel"><h2>💡 前辈经验分享</h2><p class="sub">找人、找活、做事的好经验。点赞、收藏、分享多的排前面。这里的搜索只搜经验，和任务搜索互不相通。</p><div class="bar"><input data-f="eq" id="eq" placeholder="搜索经验，如：报价、面试、换宿" value="'+esc(ui.eq)+'"><select data-f="ecat">'+opts(EXPC,ui.ecat,'全部行业')+'</select><select data-f="esort"><option value="hot">热度排行</option><option value="new"'+(ui.esort==='new'?' selected':'')+'>最新</option></select><label><input type="checkbox" data-f="efav"'+(ui.efav?' checked':'')+'> 只看我的收藏</label></div>'+
+  '<details><summary>我也来分享一条经验</summary><div class="form" style="margin-top:8px"><label>行业<select id="epc">'+EXPC.map(function(c){return '<option>'+c+'</option>';}).join('')+'</select></label><label class="full">标题<input id="ept" maxlength="30"></label><label class="full">内容<textarea id="epx" rows="3" maxlength="300"></textarea></label></div><p><button class="btn pri" data-act="epost">发布经验</button></p></details></div><div class="grid" id="expgrid"></div>';
+}
+function expCard(p,rk){
+  var open=ui.ex===p.id;
+  return '<article class="card"><div class="tags">'+(rk<=3?'<span class="tag st">🔥 TOP '+rk+'</span>':'<span class="tag">热度 #'+rk+'</span>')+'<span class="tag">'+esc(p.cat)+'</span></div><h3 data-act="dopen" data-id="x:'+p.id+'" style="cursor:pointer">'+esc(p.t)+'<span style="color:var(--mut)"> ›</span></h3><p class="desc" data-act="dopen" data-id="x:'+p.id+'" style="-webkit-line-clamp:unset">'+esc(p.c)+'</p><div class="meta"><span>'+esc(p.u)+'</span></div><div class="act">'+
+  b('elike',(p.liked?'♥ ':'♡ ')+p.likes,p.id,p.liked?'pri':'')+b('efav',(p.faved?'★ ':'☆ ')+p.favs,p.id,p.faved?'pri':'')+b('eshare','分享 '+p.shares,p.id,'')+b('eopen','评论 '+p.cm.length,p.id,'')+(p.u==='我'?b('edel','删除',p.id,'link'):'')+'</div>'+
+  (open?'<div style="margin-top:6px">'+p.cm.map(function(c){return '<div class="meta"><span><b>'+esc(c.u)+'</b>：'+esc(c.txt)+'</span></div>';}).join('')+'<div class="bar" style="margin:6px 0 0"><input id="ec_'+p.id+'" maxlength="120" placeholder="写评论" style="flex:1"><button class="btn pri" data-act="ecm" data-id="'+p.id+'">发送</button></div></div>':'')+'</article>';
+}
+function expGrid(){
+  var all=S.exp.slice().sort(function(a,b){return expScore(b)-expScore(a);});
+  var l=S.exp.filter(function(p){return (!ui.ecat||p.cat===ui.ecat)&&(!ui.efav||p.faved)&&(!ui.eq||(p.t+p.c).indexOf(ui.eq)>=0);});
+  l.sort(ui.esort==='new'?function(a,b){return b.ts-a.ts;}:function(a,b){return expScore(b)-expScore(a);});
+  document.getElementById('expgrid').innerHTML=(l.length?l.slice(0,ui.elim).map(function(p){return expCard(p,all.indexOf(p)+1);}).join(''):'<div class="empty">没有找到相关经验，换个关键词，或者自己分享一条。</div>')+(l.length>ui.elim?'<div style="grid-column:1/-1;text-align:center"><button class="btn" data-act="emore">加载更多</button></div>':'');
+}
+function expAct(a,id){
+  if(a==='emore'){ui.elim+=20;expGrid();return;}
+  if(a==='epost'){
+    var t=v('ept'),c=v('epx');
+    if(t.length<4||c.length<15){toast('标题至少 4 个字，内容至少 15 个字');return;}
+    if(BAD.test(t+c)){toast('内容含违规词，请修改');return;}
+    if(Date.now()-(S.lastExp||0)<8000){toast('发布太频繁，请稍后再试');return;}
+    S.lastExp=Date.now();S.exp.unshift({id:'e'+Date.now(),cat:v('epc'),t:t,c:c.slice(0,300),u:'我',ts:Date.now(),likes:0,favs:0,shares:0,cm:[]});
+    save();render();toast('经验已发布，等大家点赞');return;
+  }
+  var p=S.exp.filter(function(x){return x.id===id;})[0];if(!p)return;
+  if(a==='elike'){p.liked=!p.liked;p.likes+=p.liked?1:-1;}
+  else if(a==='efav'){p.faved=!p.faved;p.favs+=p.faved?1:-1;toast(p.faved?'已收藏':'已取消收藏');}
+  else if(a==='eshare'){p.shares++;var tx='【任务大厅·经验分享】'+p.t+'：'+p.c;if(typeof navigator!=='undefined'&&navigator.clipboard){var pr=navigator.clipboard.writeText(tx);if(pr&&pr.catch)pr.catch(function(){});}toast('分享内容已生成并复制，去发给朋友吧');}
+  else if(a==='eopen'){ui.ex=ui.ex===id?null:id;}
+  else if(a==='ecm'){var s2=v('ec_'+id);if(s2.length<2){toast('评论至少 2 个字');return;}if(BAD.test(s2)){toast('评论含违规词');return;}p.cm.push({u:'我',txt:s2.slice(0,120),ts:Date.now()});ui.ex=id;}
+  else if(a==='edel'){if(p.u==='我'&&confirm('删除这条经验？'))S.exp.splice(S.exp.indexOf(p),1);}
+  save();render();
+}
+function seed5(){var L=[
+['外地突发急病，需要人陪同去医院','江湖救急','paid',300,1,'驻场',300,'周先生',420,'人在外地突发急病，需要可靠的人陪同挂号、取药，全程在平台沟通留痕。','当地医院',1,{dep:200,scope:'同城'}],
+['证件丢失，紧急协助办理临时补办','江湖救急','paid',200,3,'驻场',300,'林女士',380,'出差途中证件丢失，需要熟悉流程的人带路办理临时补办。','派出所附近',2,{dep:100,scope:'同城'}],
+['车辆途中抛锚，协助联系拖车并陪同等待','江湖救急','paid',300,1,'驻场',450,'老周',520,'高速服务区附近抛锚，需有经验的人协助联系救援。','高速服务区',1,{dep:200,scope:'同城'}],
+['孩子临时无人接送，求可信的人接到家','江湖救急','paid',150,1,'驻场',450,'阿杰',560,'家长临时有急事，需要高信用的人把孩子接回家，全程视频报平安。','学校附近',1,{dep:100,scope:'同城'}],
+['老人走失，协助社区排查线索','江湖救急','charity',60,2,'驻场',450,'夕阳红服务站',500,'配合社区查看监控和走访，需要细心和耐心，无偿公益。','社区附近',2,{scope:'同城'}],
+['夜间紧急取药并送到家','江湖救急','paid',120,1,'驻场',300,'陈女士',350,'家人夜间急需药品，需要把药从药店取回送到。','同城',1,{dep:60,scope:'同城'}],
+['出国途中就医，紧急远程翻译','江湖救急','paid',300,1,'远程',450,'Lily',610,'身在国外就医，需要英语流利的人远程协助沟通。','',2,{dep:150,scope:'远程'}],
+['讲师临时缺席，紧急代课一节','江湖救急','paid',400,1,'驻场',450,'晓晴',650,'培训课前 2 小时讲师无法到场，需要熟悉 Excel 的老师救场。','培训教室',3,{dep:200,scope:'同城'}],
+['活动现场设备故障，求技术救场','江湖救急','paid',500,1,'驻场',450,'星河工作室',420,'音视频系统故障，活动即将开始，需要有现场经验的技术人员。','活动场馆',2,{dep:250,scope:'同城'}],
+['宠物走失，协助寻找','江湖救急','paid',200,3,'驻场',300,'小北',360,'小区附近走失，需要协助张贴告示和排查，找到后酬谢。','小区附近',3,{dep:100,scope:'同城'}],
+['重要文件当天急送到外地','江湖救急','paid',250,1,'驻场',450,'恒信咨询',430,'合同需当天送达，需要乘高铁的人当面交接并拍照。','跨城市',1,{dep:150,scope:'跨省'}],
+['异地租房被骗，陪同维权并整理材料','江湖救急','paid',300,5,'驻场',600,'阿宁',580,'协助收集聊天记录、转账记录，陪同报案，需要高信用且有耐心。','当地',4,{dep:150,scope:'同城'}],
+['急！！！！！！','生活服务','paid',100,1,'远程',0,'用户*8080',30,'快来','',3,{scope:'远程'}],
+['日赚500轻松在家','运营推广','paid',500,3,'远程',0,'用户*8080',30,'在家就能做，详情私聊，名额有限速来。','',4,{scope:'远程'}],
+['日赚500轻松在家','运营推广','paid',500,3,'远程',0,'用户*8080',30,'在家就能做，详情私聊，名额有限速来。','',5,{scope:'远程'}],
+['日赚500轻松在家','运营推广','paid',500,3,'远程',0,'用户*8080',30,'在家就能做，详情私聊，名额有限速来。','',6,{scope:'远程'}],
+['先付款再接单赚佣金','生活服务','paid',200,2,'远程',0,'用户*2201',25,'先付款后返佣，轻松赚钱。','',6,{scope:'远程'}]
+];return L.map(function(a){return x(mk(a[0],a[1],a[2],a[3],a[4],a[5],a[6],a[7],a[8],a[9],a[10],a[11]),a[12]);});}
+var TH={'西藏':['年满 18 周岁，体检无高原禁忌;提前了解高原反应并备好药品;尊重当地宗教和风俗','全程听从领队安排，不单独脱队;不触碰宗教场所禁忌，不随意拍摄人像;集体费用在平台内约定 AA','入藏前确认边防证等手续;高原不剧烈运动、不饮酒;购买含高原救援的保险'],
+'新疆':['携带有效证件，遵守当地法规;能适应长途自驾或骑行;尊重民族习俗和饮食','行程、路线和费用提前书面确认;自驾轮换开车，不疲劳驾驶;不进入未开放区域','昼夜温差大，备好衣物;长途路段补给站少，提前加油备水;注意防晒和沙尘'],
+'云南':['身体健康，能适应山地行走;尊重当地少数民族习俗;有基本户外常识','不私自进入保护区;垃圾带走，不乱丢弃;费用和食宿提前约定','雨季注意山体滑坡;山路开车谨慎;不买来路不明的玉石和药材'],
+'出差':['有出差经验，守时可靠;能按要求拍照或核验资料;可提供身份证明','按约定时间地点到场，临时变动先沟通;涉及保密的资料不外传;差旅费用凭票据结算','行程变动先在平台沟通;保留票据和照片;不携带或代送违禁物品'],
+'搭子':['性格友善，守时守约;愿意提前聊清楚期待和预算;提供真实资料','费用 AA，提前约定分摊方式;不强迫任何人参加活动;中途退出请提前告知','首次见面选公共场所;告诉朋友你的行程;遇到不适可随时离开'],
+'国外':['持有效护照和目的地签证;具备基本外语沟通能力;购买境外意外和医疗保险','遵守当地法律，不从事无工作许可的劳动;行程和食宿书面确认;信用要求较高，需平台审核','提前查看外交部领事保护信息;备好紧急联系方式;证件和现金分开存放'],
+'北欧':['适应低温和极昼极夜作息;持有申根签证等有效手续;有户外安全意识','极光、徒步等活动听从向导安排;保护自然环境，不留垃圾;费用提前约定，AA 透明','冬季路面结冰，注意防滑;物价较高，准备好预算;极光不可预测，别抱必看的期待'],
+'南极北极':['体检合格，有极地经验或培训;签署安全承诺书;信用较高并通过平台审核','严格遵守极地保护公约，不干扰野生动物;不得私自脱离团队;所有费用走平台担保','极地天气变化快，行程可能调整;务必购买含救援的保险;佩戴指定防护装备'],
+'欧亚非':['护照签证齐全，了解目的地风险;能适应长途转机和时差;外语或翻译软件可沟通','分阶段确认行程和费用;紧急情况优先联系使领馆和平台;不携带违禁品跨境','部分地区需疫苗证明;避免夜间独自出行;现金与证件分开存放'],
+'旅行':['提前确认时间、路线和预算;愿意遵守团队约定;如实填写资料','费用 AA 并记账;不强行改变行程;及时同步位置','购买旅行保险;保管好随身物品;雨雪天气做好备选方案'],
+'江湖救急':['只有高信用用户可接，全程在平台留痕;接单前确认地点和风险;发布者需如实说明情况','不借贷、不垫付大额现金;完成后双方在平台评价;有分歧申请调解客服','遇到危险先报警和联系家人;不要独自前往不安全地点;完成后及时报平安'],
+'组队':['遵守队长安排，按时到场;提供真实资料;愿意为团队承担分工','队长发起，成行后自动建群;费用 AA 并公开记账;中途退出需提前告知并承担已产生费用','首次见面选公共场所;提前说清目标和分工;不强迫任何人参加']};
+var RN={'技术开发':['需求变更在平台内确认;分阶段验收和付款;成果归属提前约定','不泄露客户数据;使用合规的开源组件;交付前自测'],'设计创意':['先出方向稿再精修;修改轮数写进约定;源文件和版权提前约定','使用有授权的字体和素材;保留所有版本;沟通留在平台内'],'写作翻译':['先做样稿确认风格;统一术语表;交稿附修改说明','保密稿件不外传;不抄袭;注明引用来源'],'教育辅导':['课前约好时间和内容;每次课后发反馈;沟通时间有边界','保护未成年人隐私;不做虚假承诺;线上课先测设备'],'生活服务':['上门前确认现场;服务前后拍照;加价走平台确认','独自上门要报备;贵重物品提前确认;准时到达'],'运营推广':['先看数据再定目标;指标可验证;每周复盘','不刷量、不虚假宣传;保护账号安全;不泄露客户资料'],'数据整理':['先用样本试做;保留原始备份;交付附处理说明','敏感信息先脱敏;不外传数据;按约定格式交付'],'义工旅行':['书面确认工时和食宿;购买意外险;保留退出路线','尊重当地风俗;不收取志愿者高额费用;保管好贵重物品'],'租房住宿':['先看房再付款;合同写清押金退还条件;入住前拍照','定金走平台担保;核对房东身份;不私下转账'],'搭子组队':['费用 AA 并公开;首次见面选公共场所;可随时退出','告诉朋友行程;不强迫参加;尊重对方边界'],'专属技能':['确认服务范围和交付标准;展示相关作品或资质;沟通和成果留在平台内','不预付给陌生人;保留聊天记录;有分歧申请调解'],'江湖救急':['全程平台留痕;接单者信用要求高;如实说明情况','不垫付、不借钱;注意人身安全;及时报平安'],'旅行探险':['行程、费用、分工提前书面确认;遵守当地法规;队内互相照应','购买保险;保管好证件;天气或路况变化听从领队安排']};
+function secs(t){
+  var x=t.th&&TH[t.th],c=RN[t.cat]||RN['专属技能'];
+  return {req:(t.req?t.req:x?x[0]:(DETC[t.cat]||DETC['专属技能'])).split(/;|；/),rules:(t.rules?t.rules:x?x[1]:c[0]).split(/;|；/),notes:(t.notes?t.notes:x?x[2]:c[1]).split(/;|；/)};
+}
+function allSkills(){var a=PROFS.map(function(p){return p.n;});S.tasks.forEach(function(t){if(t.skill&&a.indexOf(t.skill)<0)a.push(t.skill);});return a;}
+var CHAT_REPLY=['好的，收到。','可以，我们在这里确认细节。','没问题，我看一下时间安排。','谢谢，我马上处理。','我了解了，稍后回复你。'];
+function chatTitle(c){return c.title+(c.members.length>2?'（群，'+c.members.length+' 人）':'');}
+function chatFor(t){
+  var o=t.poster==='我'?t.taker:t.poster;if(!o||o==='我')return null;
+  var id='t'+t.id;
+  if(!S.chats[id])S.chats[id]={id:id,type:'task',tid:t.id,title:'任务：'+t.t,members:['我',o],lock:true,msgs:[{u:'系统',txt:'请在平台内沟通并保留记录，不要私下转账或垫付。与发单人的聊天记录不可删除，会作为纠纷证据保存。',ts:Date.now()}]};
+  return S.chats[id];
+}
+function chatFriend(n){var id='f'+n;if(!S.chats[id])S.chats[id]={id:id,type:'friend',title:'好友：'+n,members:['我',n],lock:false,msgs:[{u:'系统',txt:'你们已是好友，可以随时聊天。好友聊天记录可以清空。',ts:Date.now()}]};return S.chats[id];}
+function teamGroup(t){
+  var id='g'+t.id;
+  if(!S.chats[id]){var m=['我',t.poster],i=0;while(m.length<Math.min(t.slots||4,6)&&i<NAMES.length){if(m.indexOf(NAMES[i])<0)m.push(NAMES[i]);i++;}
+    S.chats[id]={id:id,type:'group',tid:t.id,title:'任务群：'+t.t,members:m,lock:true,msgs:[{u:'系统',txt:'小队成行！请在群里确认集合时间和费用 AA。这是与发单人所在的群，记录不可删除。',ts:Date.now()}]};}
+  return S.chats[id];
+}
+function openChat(id){ui.det='c:'+id;render();}
+function openTaskChat(t){
+  if(t.poster==='我'&&!t.taker){toast('还没有人接单，暂时没有聊天对象');return;}
+  var c=chatFor(t);if(!c)return;save();openChat(c.id);
+}
+function csend(id){
+  var c=S.chats[id],x=v('cin');if(!c||!x)return;
+  if(BAD.test(x)){toast('消息含违规词（如垫付、私下转账），请勿私下交易');return;}
+  c.msgs.push({u:'我',txt:x.slice(0,200),ts:Date.now()});save();render();
+  var o=c.members.filter(function(m){return m!=='我';});
+  if(o.length)setTimeout(function(){c.msgs.push({u:o[rn(0,o.length-1)],txt:CHAT_REPLY[rn(0,4)],ts:Date.now()});save();render();},900);
+}
+function chText(c){return c.title+'\n'+c.msgs.map(function(m){return new Date(m.ts).toLocaleString()+' '+m.u+'：'+m.txt;}).join('\n');}
+function chAct(act,id,a){
+  var c=S.chats[id];if(!c)return;
+  if(act==='copych'){var tx=chText(c);if(typeof navigator!=='undefined'&&navigator.clipboard){var pr=navigator.clipboard.writeText(tx);if(pr&&pr.catch)pr.catch(function(){});}toast('聊天记录已复制');return;}
+  if(act==='savech'){S.saved.unshift({id:'sv'+Date.now(),title:c.title,txt:chText(c),ts:Date.now()});save();render();toast('已保存快照，可在“聊天与好友”里查看');return;}
+  if(act==='clearch'){if(c.lock){toast('与发单人的聊天记录不能删除');return;}if(confirm('清空这段好友聊天记录？')){c.msgs=[{u:'系统',txt:'记录已清空',ts:Date.now()}];}save();render();return;}
+  if(act==='cinvite'){var n=a.getAttribute('data-u');if(c.members.indexOf(n)<0){c.members.push(n);c.type='group';c.msgs.push({u:'系统',txt:n+' 加入了群聊',ts:Date.now()});}save();render();toast('已拉入群聊');}
+}
+function addFriend(n){
+  n=(n||'').trim();if(!n||n==='我'){toast('请输入对方昵称');return;}
+  if(S.friends.some(function(f){return f.n===n;})){toast(n+' 已经是你的好友');return;}
+  S.friends.push({n:n,ts:Date.now()});save();render();toast('已向 '+n+' 发出申请（演示：对方已通过）');
+}
+function frAct(act,n){
+  var i=S.freq.map(function(f){return f.n;}).indexOf(n);if(i<0)return;
+  if(act==='facc'&&!S.friends.some(function(f){return f.n===n;}))S.friends.push({n:n,ts:Date.now()});
+  S.freq.splice(i,1);save();render();toast(act==='facc'?'已通过好友申请':'已忽略');
+}
+function detChat(c){
+  var fr=S.friends.map(function(f){return f.n;}),nf=c.members.filter(function(m){return m!=='我'&&fr.indexOf(m)<0;}),inv=S.friends.filter(function(f){return c.members.indexOf(f.n)<0;});
+  return '<h2 style="margin:0 0 4px">'+esc(chatTitle(c))+'</h2><p class="sub">成员：'+c.members.map(esc).join('、')+(c.lock?'<br>🔒 与发单人的聊天记录不可删除，会一直保存，作为纠纷证据。':'')+'</p><div id="cmsgs" style="max-height:44vh;overflow:auto;background:var(--card);border:1px solid var(--line);border-radius:10px;padding:8px">'+c.msgs.map(function(m){var me=m.u==='我',sy=m.u==='系统';return '<div style="display:flex;justify-content:'+(sy?'center':me?'flex-end':'flex-start')+';margin:4px 0"><span style="max-width:80%;padding:6px 10px;border-radius:10px;font-size:14px;'+(sy?'background:var(--chip);color:var(--mut);font-size:12px':me?'background:var(--pri);color:var(--priT)':'background:var(--chip)')+'">'+(sy||me?'':'<b style="font-size:12px">'+esc(m.u)+'</b><br>')+esc(m.txt)+'</span></div>';}).join('')+'</div><div class="bar" style="margin:8px 0"><input id="cin" maxlength="200" style="flex:1" placeholder="输入消息，请勿私下转账"><button class="btn pri" data-act="csend" data-id="'+c.id+'">发送</button></div><div class="act">'+b('copych','复制记录',c.id,'')+b('savech','保存快照',c.id,'')+(c.lock?'':b('clearch','清空记录',c.id,'link'))+'</div>'+
+  (inv.length?'<h3>邀请好友入群</h3><div class="tags">'+inv.map(function(f){return b('cinvite','+ '+esc(f.n),c.id,'').replace('data-id','data-u="'+esc(f.n)+'" data-id');}).join('')+'</div>':'')+
+  (nf.length?'<h3>加好友</h3><div class="tags">'+nf.map(function(n){return b('addfriend','加 '+esc(n),esc(n),'');}).join('')+'</div>':'')+
+  '<p class="sub" style="margin-top:10px">提示：请在平台内沟通，不要私下转账或垫付。</p>';
+}
+function chatTab(){
+  var cl=Object.keys(S.chats).map(function(k){return S.chats[k];}).sort(function(a,b){return b.msgs[b.msgs.length-1].ts-a.msgs[a.msgs.length-1].ts;});
+  return '<div class="panel"><h2>💬 聊天</h2><ul class="led">'+(cl.map(function(c){var m=c.msgs[c.msgs.length-1];return '<li><span><b>'+(c.lock?'🔒 ':'')+esc(chatTitle(c))+'</b><br><span class="sub">'+esc(m.u)+'：'+esc(m.txt.slice(0,30))+'</span></span>'+b('dopen','打开','c:'+c.id,'')+'</li>';}).join('')||'<li>还没有聊天。领取任务后，或在任务详情点“沟通”，就会出现在这里。</li>')+'</ul><p class="sub">🔒 表示与发单人的聊天或任务群，记录不可删除，可作为纠纷证据；好友聊天可以清空。</p></div>'+
+  '<div class="panel"><h2>👥 好友（'+S.friends.length+'）</h2><div class="bar"><input id="fnm" maxlength="12" placeholder="输入对方昵称加好友" style="flex:1"><button class="btn pri" data-act="fadd">加好友</button></div>'+(S.freq.length?'<ul class="led">'+S.freq.map(function(f){return '<li><span>'+esc(f.n)+'：'+esc(f.m)+'</span><span>'+b('facc','通过',esc(f.n),'pri')+b('fdec','忽略',esc(f.n),'link')+'</span></li>';}).join('')+'</ul>':'')+'<ul class="led">'+(S.friends.map(function(f){return '<li><span>'+esc(f.n)+'</span>'+b('fchat','💬 聊天',esc(f.n),'')+'</li>';}).join('')||'<li>还没有好友</li>')+'</ul></div>'+
+  '<div class="panel"><h2>🗂 已保存的聊天记录</h2>'+(S.saved.length?S.saved.map(function(x){return '<details><summary>'+esc(x.title)+' · '+new Date(x.ts).toLocaleDateString()+'</summary><pre style="white-space:pre-wrap;font-size:12px">'+esc(x.txt)+'</pre></details>';}).join(''):'<p class="sub">在聊天窗口点“保存快照”，记录会保存在这里。</p>')+'</div>';
+}
+var SC=['刷单返佣|先垫付，立刻返还加佣金|前几单小额返款骗取信任，再让你大额垫付后拉黑|凡是先垫付、先付款的任务都是骗局','保证金骗局|交保证金才能接单|收完保证金就失联|正规平台不会要求接单者交钱','培训费骗局|包就业，先交培训费|收费后课程敷衍，工作并不存在|先收培训费再给工作的要警惕','虚假高薪兼职|日赚 800，在家轻松|吸引点击后引导私聊转账|报酬远高于市场价，多半是骗','代办证件收费|代办出国证件，低价包过|收费后失联或办假证|证件只能走官方渠道','虚假免费旅行|免费环游，只需交押金|押金不退，还要追加费用|“免费”却要先交钱的不可信','假冒客服退款|系统出错，需要退款|诱导共享屏幕或转账|客服不会让你转账或共享屏幕','虚假担保|我们是平台担保，转到这个账户|给出假账户收款|担保款只在平台内托管，不转个人账户','高价诱导|一单 5000，只要你帮忙点一下|先骗信任，再让你充值|报酬极高且任务极简的要警惕','假冒公益募捐|帮助山区儿童，请扫码捐款|二维码是个人收款|公益项目应公示资质和账户',
+'虚假支教收费|支教体验，需先交 3000 元|收费后没有项目|正规志愿项目不向志愿者收高额费用','假导游收费|带你玩，到地再收费|到地后高价强制消费|行程和价格先在平台约定','虚假租房定金|房源紧张，先交定金|定金收后失联|先看房再付定金，走平台担保','虚假合租室友|出国前转租，先转钱|房子根本不存在|无法看房的房源不要付钱','假冒求助借钱|我遇到急事，先借我点钱|冒充救急骗取转账|救急任务不涉及个人借款','假救急任务|汽车抛锚，你先垫付维修费|诱导垫付后消失|任何垫付都要拒绝','假冒官方|你的账号违规，需要缴费解封|冒充平台收费|平台不会私聊收费','刷信用骗局|花 200 元给你加 100 信用分|信用不能买卖，收钱后消失|信用只能靠守约积累','买卖账号|出售高信用账号|买到的账号会被封|账号买卖会被封号','假冒大客户|大单，先扫码确认身份|扫码窃取信息或盗刷|不要扫陌生二维码',
+'虚假旅行拼团|拼团去西藏，先交全款|收款后失联|大额费用走平台担保','假冒极地邮轮|南极邮轮特价，今天截止|低价骗定金|极地行程价格高，低价异常','假冒境外务工|出国务工，高薪包吃住|收中介费后送去境外黑工厂|境外务工要核实资质','境外诈骗园区|高薪客服岗，机票全包|引诱出境后被控制|谨慎对待境外高薪岗位','虚假翻译任务|发你一份文件翻译，先登录这个链接|钓鱼链接盗号|陌生链接不要点','假冒视频剪辑|先交素材审核费|收审核费后不再联系|接单方不应向发布者收费','虚假设计抽成|设计后返现，需先付定金|定金后失联|设计服务不需要提前付款给陌生人','假冒家政上门|预付一个月，送全套工具|收款后不上门|家政预付要分次','假冒司机接送|私下转账更便宜|绕开平台后失联|不要私下转账','虚假搬家低价|低价搬家，装车后加价|装车后扣押物品要钱|价格提前书面确认',
+'假冒课程退费|课程退费，请先垫付手续费|手续费骗局|正规退费不会要求你先付钱','虚假考证代办|包过代考|违法且收费后失联|代考违法，不要参与','虚假出差代办|帮我垫付机票，回来双倍|垫付后消失|出差费用走平台，不垫付','假冒志愿者证书|交 99 元领国家级证书|证书无效|公益积分和证书由平台出具，免费','假冒代写论文|先付一半，包过查重|收款后消失或抄袭|学术不端不被允许','虚假直播带货|报名直播，交 500 元设备费|收费后无任务|任务不应向接单者收费','假冒游戏代练|上号代练，需要你的验证码|盗取账号|不要透露验证码','虚假红包返利|点击领红包，需要先充值|充值后无法提现|凡先充值才能领的都是骗局','假冒摄影模特|拍写真，先交服装押金|收押金后失联|拍摄服务不应让你先付费','假冒招聘|入职前交体检费和服装费|收费后无岗位|正规入职不收费',
+'假冒公益拍卖|拍卖所得全部捐赠，先付竞拍保证金|保证金骗局|公益活动需公开账户','假冒搭子骗感情|一起旅行，我帮你出钱，你先转部分|情感诈骗|搭子不要求提前转钱','假冒搭子兼职|陪聊赚钱，需要交会员费|收会员费后无工作|陪聊兼职不应收费','虚假保险推销|加入保险，赚佣金|层层拉人头|拉人头返利要警惕','假冒投资任务|跟着我投资，稳赚不赔|诱导投资后消失|任何保本高收益都是骗局','假冒旅行基金|交钱入会，免费环游世界|传销套路|免费换宿不需要交会员费','假冒转让名额|转让支教名额，价格优惠|倒卖假名额|名额由项目方免费分配','恶意套取信息|填表领奖，需要身份证正反面|窃取个人信息|不要随意发送证件照','虚假担保交易|我先发货，你收到后再付|发空包或假货|交易走平台担保','钓鱼二维码|扫码查看任务详情|二维码跳转到盗号网站|不扫陌生二维码'];
+function scamTab(){return '<div class="panel" style="border-color:#d9381e"><h2>🚫 骗局展示（'+SC.length+' 例）</h2><p class="sub">以下都是常见的虚假任务套路，仅作展示，<b>不能接单</b>。遇到类似情况：不转账、不垫付、不点陌生链接，保存聊天记录并举报。</p><div class="bar"><input data-f="sq" id="sq" placeholder="搜索，如：垫付、保证金、旅行" value="'+esc(ui.sq||'')+'"></div></div><div class="grid" id="scamgrid"></div>';}
+function scamGrid(){
+  var q=ui.sq||'',l=SC.map(function(x,i){var a=x.split('|');a.push(i+1);return a;}).filter(function(a){return !q||a.join('').indexOf(q)>=0;});
+  document.getElementById('scamgrid').innerHTML=l.map(function(a){return '<article class="card" style="border-left-color:#d9381e"><div class="tags"><span class="tag" style="background:#d9381e;color:#fff">⚠ 骗局 #'+a[4]+'</span></div><h3>'+esc(a[0])+'</h3><p class="desc" style="-webkit-line-clamp:unset;cursor:auto">典型话术：“'+esc(a[1])+'”</p><p class="desc" style="-webkit-line-clamp:unset;cursor:auto">套路：'+esc(a[2])+'</p><p class="desc" style="-webkit-line-clamp:unset;cursor:auto"><b>识别要点：</b>'+esc(a[3])+'</p></article>';}).join('')||'<div class="empty">没有匹配的骗局。</div>';
+}
+function seed9(){
+  var L=[];
+  Object.keys(T10).forEach(function(th){
+    var b=TB[th];
+    T10[th].split('|').forEach(function(ti){
+      var team=/搭子|组队|拼车/.test(ti),vol=/志愿|义工/.test(ti),stay=/换宿|帮工/.test(ti);
+      var kind=team?'swap':vol?'charity':stay?'swap':'paid';
+      var rw=kind==='paid'?Math.round(b[0]*(0.7+Math.random()*0.7)/10)*10:kind==='charity'?rn(2,6)*10:0;
+      var loc=(th==='出差'||th==='搭子'||th==='江湖救急'||th==='组队')?CITY[rn(0,9)]:b[2],days=rn(1,14);
+      var t=mk(ti,b[3],kind,rw,days,'驻场',b[1],POSTERS[rn(0,15)],rn(200,600),ti+'。完整的要求、规则和注意事项见详情。',loc,rn(1,23));
+      t.th=th;t.det=ti+'。'+TD[th]+'预计 '+days+' 天。';
+      t.scope=/国外|北欧|南极北极|欧亚非/.test(th)?'跨国':/西藏|新疆|云南|旅行|出差/.test(th)?'跨省':'同城';
+      if(team){t.slots=rn(2,6);t.joined=rn(0,t.slots-1);t.rt='free';t.rtext='AA 分摊';}
+      if(th==='组队'){t.team=1;t.slots=rn(3,8);t.joined=rn(1,t.slots-1);t.rtext='组队互助，AA 分摊';}
+      if(vol){t.rt=(th==='出差'||th==='搭子'||th==='组队')?'point':'lodge';if(t.rt==='lodge')t.rtext='包吃包住 + '+rw+' 公益积分';}
+      if(stay){t.rt='lodge';t.rtext='包吃包住（劳动换宿）';}
+      if(kind==='paid'&&rw>=500)t.dep=Math.round(rw*0.2);
+      L.push(t);
+    });
+  });
+  return L;
+}
+function seedExp2(){
+  var U=['老周','晓晴','阿杰','Lily','小北','阿宁','陈老师','星河前辈'],C=['很实用，收藏了','说得对，我也踩过这个坑','感谢分享！','学到了'];
+  return EXD2.map(function(l,i){
+    var a=l.split('|'),cm=[],n=rn(0,2);
+    for(var k=0;k<n;k++)cm.push({u:U[rn(0,7)],txt:C[rn(0,3)],ts:Date.now()-rn(1,200)*36e5});
+    return {id:'y'+i,cat:a[0],t:a[1],c:a[2],u:U[rn(0,7)],ts:Date.now()-rn(1,500)*36e5,likes:rn(20,380),favs:rn(5,150),shares:rn(0,40),cm:cm};
+  });
+}
+function seed7(){
+  var TP=['高原伙伴','天山牧场','彩云之南旅社','出差邦','搭子站','Green Valley Farm','北欧旅人','极地之光','丝路客','旅途笔记'];
+  var SP=['拉萨到纳木错拼车搭子（含高反预案）|西藏|旅行探险|swap|0|7|西藏·拉萨|80|4|七天行程：拉萨集合，纳木错、羊湖、日喀则，AA 包车和住宿，每天海拔上升不超过 600 米，队内互相留意高反。','阿里大北线拼车（需高原经验）|西藏|旅行探险|swap|0|14|西藏·阿里|300|3|十四天深度线路，路况艰苦，需有高原和越野经验，轮流驾驶，油费和住宿 AA，全程平台留痕。','牧民家庭换宿体验 5 天|西藏|旅行探险|charity|25|5|西藏·林芝|80|0|住牧民家，帮忙家务和放牧，学藏语和酥油茶，包吃包住，尊重风俗，不随意拍摄人像。','高原摄影陪拍向导|西藏|旅行探险|paid|800|5|西藏·拉萨|150|0|陪同摄影爱好者拍摄布达拉宫和羊卓雍措日出，熟悉路线和拍摄点，负责协调当地车辆。','珠峰大本营观星拍摄助手|西藏|旅行探险|paid|600|4|西藏·定日|300|0|协助星空摄影师搬运器材、定位机位，需耐寒和高海拔适应能力，行程含氧气保障。',
+'北疆环线自驾搭子|新疆|旅行探险|swap|0|10|新疆·乌鲁木齐|80|3|乌鲁木齐出发，赛里木湖、喀纳斯、禾木，AA 租车和油费，欢迎有驾照的伙伴轮流开车。','独库公路自驾搭子|新疆|旅行探险|swap|0|3|新疆·独山子|150|3|独库公路三日行，山路多，需有山区驾驶经验，错峰出发，天气不佳就改线。','喀什古城义工两周|新疆|旅行探险|charity|30|14|新疆·喀什|80|0|协助古城手工艺合作社接待游客和整理资料，包吃包住，学习维吾尔手作。','牧场转场体验志愿者|新疆|旅行探险|charity|40|7|新疆·伊犁|150|0|跟随牧民转场，协助看管羊群和搭毡房，包吃包住，需体检合格。','胡杨林摄影向导|新疆|旅行探险|paid|700|3|新疆·阿克苏|80|0|秋季胡杨拍摄陪同，熟悉光线和机位，负责联系当地车辆和食宿。',
+'大理洱海环骑搭子|云南|旅行探险|swap|0|2|云南·大理|0|4|洱海环骑 130 公里分两天，节奏轻松，AA 民宿和餐费，新手也可参加。','香格里拉徒步搭子|云南|旅行探险|swap|0|4|云南·香格里拉|80|4|虎跳峡到梅里雪山徒步，高海拔，需有基础体能，AA 住宿和向导费。','西双版纳雨林义工|云南|旅行探险|charity|35|10|云南·西双版纳|80|0|协助雨林保护站记录野生动物，包吃包住，雨季蚊虫多，需自备防护用品。','咖啡庄园换宿 2 周|云南|旅行探险|swap|0|14|云南·保山|0|0|采摘、晾晒、烘焙体验，每天工作 4 小时，包吃住，空闲时间自由。','古村落摄影记录志愿者|云南|旅行探险|charity|30|7|云南·丽江|80|0|为古村落拍摄老建筑和老人故事，作品交给村委会存档，包吃包住。',
+'上海展会陪同翻译|出差|生活服务|paid|900|3|上海|150|0|陪同客户参展三天，英语流利，着装得体，包午餐，差旅另报销，凭票据结算。','广州工厂验货代办|出差|生活服务|paid|500|2|广州|150|0|按验货清单核对产品和包装，拍照记录，当天出报告，有质检经验优先。','北京会议签到跑腿|出差|生活服务|paid|300|1|北京|80|0|会议签到、发放资料、引导来宾，穿正装，提前 1 小时到场。','成都出差代取代寄件|出差|生活服务|paid|200|1|成都|80|0|取回合同和样品并当面交接，拍照确认，保密资料不得外传。','深圳展会摊位值守|出差|生活服务|paid|600|3|深圳|80|0|为参展商看守摊位、接待咨询，需熟悉产品介绍，包午餐。',
+'周末城市徒步搭子|搭子|搭子组队|swap|0|2|成都|0|6|周六早 8 点集合，约 15 公里，新手友好，AA 零食饮料。','看展搭子（美术馆）|搭子|搭子组队|swap|0|1|上海|0|2|一起看展并交流想法，AA 票价，看完可以喝杯咖啡聊聊。','夜跑搭子（每周三次）|搭子|搭子组队|swap|0|30|杭州|0|5|每周三次夜跑 5 公里，互相监督打卡，下雨顺延。','美食探店搭子|搭子|搭子组队|swap|0|2|广州|0|4|周末探店，AA 点菜，拍照分享，拒绝浪费。','周末露营搭子|搭子|搭子组队|swap|0|2|北京|0|6|郊外露营，AA 场地费，自带帐篷，注意用火安全。',
+'泰国清迈换宿 3 周|国外|旅行探险|swap|0|21|泰国·清迈|300|0|每天劳动 4 小时换食宿，需有效签证和境外保险，平台人工审核。','日本背包客栈义工|国外|旅行探险|swap|0|30|日本·东京|300|0|协助前台和清洁，包住，需基础日语或英语，自备签证。','新西兰农场换宿|国外|旅行探险|swap|0|28|新西兰·奥克兰|450|0|农场帮工换食宿，每周工作 20 小时，需持相应签证，不得非法打工。','越南教英语志愿|国外|旅行探险|charity|45|30|越南·河内|300|0|为孤儿院孩子教英语，包食宿，需无犯罪记录证明。','尼泊尔徒步向导助手|国外|旅行探险|paid|700|14|尼泊尔·加德满都|450|0|协助向导带队徒步 ABC 线路，需有高海拔经验和急救证书。',
+'冰岛极光追光搭子|北欧|旅行探险|swap|0|7|冰岛·雷克雅未克|450|3|AA 租车追极光，冬季路况差，需有冰雪驾驶经验，遵守当地法规。','挪威极光向导助手|北欧|旅行探险|paid|900|10|挪威·特罗姆瑟|450|0|协助向导接待中文游客，英语流利，需耐寒和夜班作息。','芬兰圣诞老人村志愿者|北欧|旅行探险|charity|40|14|芬兰·罗瓦涅米|300|0|冬季节庆接待志愿者，包吃住，需申根签证和保险。','瑞典拉普兰狗拉雪橇体验|北欧|旅行探险|swap|0|5|瑞典·基律纳|300|4|AA 费用组队体验雪橇和萨米文化，穿着保暖，听从向导。','哥本哈根骑行搭子|北欧|旅行探险|swap|0|4|丹麦·哥本哈根|300|3|城市骑行，遵守交通规则，AA 住宿和租车。',
+'南极科考志愿者培训协助|南极北极|旅行探险|charity|60|20|极地培训基地|600|0|协助科考队前期培训资料整理，需体检合格，信用较高，平台审核。','北极圈极光摄影记录|南极北极|旅行探险|paid|1500|10|北极圈·特罗姆瑟|600|0|为极光研究机构记录影像，需耐寒并有长曝光经验，所有费用走平台担保。','极地知识分享讲师|南极北极|旅行探险|charity|40|2||450|0|线上给学生讲极地生态和科考故事，需有相关经历。','南极邮轮志愿翻译|南极北极|旅行探险|paid|2500|14|乌斯怀亚|600|0|在邮轮上担任中英志愿翻译，行程昂贵，必须购买含救援的保险并通过审核。','漠河极光搭子|南极北极|旅行探险|swap|0|5|黑龙江·漠河|150|4|冬季漠河追极光，极寒天气，装备齐全，AA 住宿和车费。',
+'土耳其地毯小镇义工|欧亚非|旅行探险|swap|0|14|土耳其·伊斯坦布尔|300|0|协助手工艺合作社接待游客，包食宿，尊重当地习俗。','摩洛哥沙漠徒步搭子|欧亚非|旅行探险|swap|0|7|摩洛哥·马拉喀什|450|4|撒哈拉徒步露营，AA 向导费，注意防晒补水和防骗。','肯尼亚野生动物保护志愿|欧亚非|旅行探险|charity|50|21|肯尼亚·内罗毕|450|0|协助保护站记录动物，需疫苗证明和保险，平台审核。','埃及古迹摄影助手|欧亚非|旅行探险|paid|900|7|埃及·开罗|450|0|协助摄影师拍摄古迹，英语沟通，注意文物保护规定。','丝绸之路中亚背包搭子|欧亚非|旅行探险|swap|0|20|乌兹别克斯坦|450|3|中亚多国背包行，AA 费用，需处理好多国签证。',
+'川藏线骑行队友|旅行|旅行探险|swap|0|20|四川·成都|150|5|成都出发骑行川藏线，AA 补给，队内有护送车，需有长途骑行经验。','海岛支教旅行|旅行|旅行探险|charity|35|10|海南·海岛|80|0|旅行加支教，白天给孩子上课，包吃住，需通过面谈。','一人一城慢旅行记录|旅行|旅行探险|paid|400|7|全国|80|0|用文字和照片记录一座城的慢生活，交付图文合集，行程自理。',
+'境外突发：求当地华人协助联系使领馆|江湖救急|江湖救急|paid|300|1|境外|450|0|证件被盗，需要在当地的华人协助联系使领馆和报警，全程平台留痕，高信用优先。','高原突发高反，求助协助送医|江湖救急|江湖救急|paid|400|1|西藏·那曲|450|0|同行者高反严重，急需有经验的人协助联系救援和送医，完成后及时报平安。'];
+  return SP.map(function(l){
+    var a=l.split('|'),k=a[3],rw=+a[4];
+    var t=mk(a[0],a[2],k,rw,+a[5],a[6]?'驻场':'远程',+a[7],TP[rn(0,9)],rn(200,600),a[0]+'。完整的要求、规则和注意事项见详情。',a[6],rn(1,20));
+    t.th=a[1];t.det=a[9];
+    t.scope=/国外|北欧|南极北极|欧亚非/.test(a[1])?'跨国':(a[6]?(/西藏|新疆|云南|旅行|出差/.test(a[1])?'跨省':'同城'):'远程');
+    if(+a[8]){t.slots=+a[8];t.joined=rn(0,t.slots-1);}
+    if(k==='swap'){t.rt='free';t.rtext='AA 分摊';}
+    if(k==='charity'&&a[2]!=='江湖救急'){t.rt='lodge';t.rtext='包吃包住 + '+rw+' 公益积分';}
+    if(k==='paid'&&rw>=500)t.dep=Math.round(rw*0.2);
+    return t;
+  });
+}
+function seed8(){
+  var TM=['创业小队：找 2 位技术和运营合伙人|周末项目，先做验证再投入，股权和分工提前书面约定|3|80','黑客松组队：48 小时做个公益小产品|找设计、前端、后端和产品，成果开源，由评委评分|5|0','读书会组队：每周共读一本书|线上每周一次交流，轮流主持，坚持 12 周|6|0','公益小队：周末去养老院陪伴老人|每月两次，陪老人聊天、表演节目，需先培训|8|0','环游中国骑行小队（暑假）|60 天骑行，分段组队，AA 补给，队内有护送车|6|150','英语角固定小组|每周两次线上口语交流，限 8 人|8|0','摄影采风小队|每月一次城市采风，互评作品，AA 交通|6|0','急救技能志愿小队|先接受急救培训，再参与社区活动，需完成培训|8|80','数学建模竞赛组队|三人一队，分工建模、编程、写作，赛前一起训练|3|0','剧本杀固定车队|每周末一次，AA 场地费，欢迎新手|6|0','创作者互助小组（短视频）|互相点评、共享素材，每周复盘|5|0','21 天健身打卡小组|每天打卡，互相监督，坚持就是胜利|8|0','自驾川藏线组队|成都出发，AA 油费和住宿，需 2 位有经验的司机|4|150','雪山入门徒步小队|专业向导带队，装备清单提前发，体能测试通过才能出发|6|150','暑期公益支教小队|8 月前往山区学校，包吃住，需培训和面谈|10|80'];
+  return TM.map(function(l){
+    var a=l.split('|'),sl=+a[2];
+    var t=mk(a[0],'搭子组队','swap',0,rn(7,40),'驻场',+a[3],POSTERS[rn(0,15)],rn(200,600),a[0]+'。完整的要求、规则和注意事项见详情。','',rn(1,20));
+    t.th='组队';t.team=1;t.det=a[1];t.slots=sl;t.joined=rn(1,sl-1);t.rt='free';t.rtext='组队互助，AA 分摊';t.scope=/川藏|骑行|支教/.test(a[0])?'跨省':'同城';
+    return t;
+  });
+}
+var MS={7:['七日不辍勋章','🏅',5,'item'],14:['补签卡 ×1','🎟',0,'card'],30:['三十日勋章 + 星辰头像框','🌟',20,'item'],60:['免费调解券 ×1','🛟',30,'tix'],100:['定制明信片一套（演示）','💌',50,'item'],365:['年度荣誉称号 + 实物礼物（演示）','🏆',200,'item']};
+var CK_CAP=300;
+var CKT=[[1,2,1],[3,6,2],[7,13,3],[14,29,5],[30,59,8],[60,0,10]];
+function ckAmt(n){var r=1;CKT.forEach(function(t){if(n>=t[0])r=t[2];});return r;}
+function nextTier(n){return CKT.filter(function(t){return t[0]>n;})[0]||null;}
+function day(){var d=new Date();return d.getFullYear()+'-'+('0'+(d.getMonth()+1)).slice(-2)+'-'+('0'+d.getDate()).slice(-2);}
+function shiftDay(n){S.ck.last=new Date(Date.parse(S.ck.last||day())-n*864e5).toISOString().slice(0,10);}
+function ckjump(){var ks=Object.keys(MS).map(Number).sort(function(a,b){return a-b;}).filter(function(n){return n>S.ck.streak+1;}),n=ks[0];if(!n){toast('已解锁全部里程碑');return;}S.ck.streak=n-1;S.ck.best=Math.max(S.ck.best,n-1);S.ck.last=new Date(Date.parse(day())-864e5).toISOString().slice(0,10);toast('演示：已快进到第 '+(n-1)+' 天，明天签到就能解锁里程碑');}
+function persist(){return Math.min(20,Math.floor((S.ck.best||0)/5));}
+function trust(){return credit()+persist();}
+function checkin(){
+  var c=S.ck,td=day();
+  if(c.last===td){toast('今天已经签到了，明天继续');return;}
+  var gap=c.last?Math.round((Date.parse(td)-Date.parse(c.last))/864e5):1,msg='';
+  if(gap===1)c.streak++;
+  else if(gap===2&&S.card>0){S.card--;c.streak++;msg='（用了 1 张补签卡）';}
+  else{if(c.streak>=3)msg='（中断了，重新开始）';c.streak=1;}
+  c.last=td;c.total++;c.best=Math.max(c.best,c.streak);
+  var a=Math.max(0,Math.min(ckAmt(c.streak),CK_CAP-(c.earned||0)));c.earned=(c.earned||0)+a;if(a>0)add(a,'每日签到，连续 '+c.streak+' 天');
+  var m=MS[c.streak];
+  if(m&&!c.got[c.streak]){c.got[c.streak]=1;if(m[2])add(m[2],'签到里程碑：'+m[0]);if(m[3]==='card')S.card++;else if(m[3]==='tix')S.tix++;else S.items.push({n:m[0],e:m[1],ts:Date.now()});msg+=' 🎉 解锁：'+m[0]+(m[2]?'，信用 +'+m[2]:'');}
+  var nt=nextTier(c.streak);toast('签到成功，信用 +'+a+(a?'':'（累计已达上限，继续坚持有勋章和物品）')+'，连续 '+c.streak+' 天'+msg+(nt?'。再坚持 '+(nt[0]-c.streak)+' 天，每天升到 +'+nt[2]:'。已是最高档'));
+}
+function ckPanel(){
+  var c=S.ck,done=c.last===day(),cur=done?c.streak:c.streak+1;
+  var nt=nextTier(cur),ks=Object.keys(MS).map(Number).sort(function(a,b){return a-b;}),nx=ks.filter(function(n){return n>c.streak;})[0];
+  var hab=c.streak<1?'从今天开始，迈出第一步':c.streak<3?'好的开始，再坚持几天，奖励就会涨':c.streak<7?'习惯正在养成，别断':c.streak<21?'你已经坚持 '+c.streak+' 天，开始形成习惯':c.streak<66?'你已经坚持 '+c.streak+' 天，签到已经成了日常':'你已经坚持 '+c.streak+' 天，它已经是你生活的一部分';
+  var rows=CKT.map(function(t){var on=cur>=t[0]&&(!t[1]||cur<=t[1]);return '<li'+(on?' style="background:var(--chip);font-weight:700"':'')+'><span>连续第 '+t[0]+(t[1]?' 到 '+t[1]+' 天':' 天起')+(on?'（现在）':'')+'</span><span>每天 +'+t[2]+' 信用</span></li>';}).join('');
+  var mrows=ks.map(function(n){return '<li><span>'+(c.got[n]?'✓ ':'')+'连续 '+n+' 天</span><span>'+MS[n][1]+' '+MS[n][0]+(MS[n][2]?'，信用 +'+MS[n][2]:'')+'</span></li>';}).join('');
+  return '<div class="panel"><h2>📅 每日签到</h2><p style="margin:0">连续 <b style="font-size:22px;color:var(--gold)">'+c.streak+'</b> 天，累计 '+c.total+' 天</p><p style="margin:4px 0"><b>'+hab+'</b></p><p style="margin:4px 0">'+(done?'今天已签到 ✓。明天继续可得 <b>+'+ckAmt(c.streak+1)+'</b> 信用':'今天签到可得 <b style="color:var(--gold)">+'+ckAmt(cur)+'</b> 信用')+'</p><p class="sub" style="margin:4px 0">'+(nt?'再坚持 '+(nt[0]-cur)+' 天，每天奖励升到 +'+nt[2]+'。':'已是最高档，每天 +'+ckAmt(cur)+'。')+(nx?'下一个奖励：连续 '+nx+' 天 '+MS[nx][1]+' '+MS[nx][0]+'（还差 '+(nx-c.streak)+' 天）':'已解锁全部里程碑')+'</p><div class="prog"><i style="width:'+(nx?Math.min(100,Math.round(c.streak/nx*100)):100)+'%"></i></div><p><button class="btn pri" data-act="checkin"'+(done?' disabled':'')+'>'+(done?'今天已签到':'立即签到')+'</button> <button class="btn link" data-act="ckjump">演示：快进到里程碑前一天</button> <button class="btn link" data-act="cknext">演示：模拟过了一天</button></p>'+
+  '<details open><summary>签到奖励说明</summary><p class="sub" style="margin:6px 0">坚持越久，每天的奖励越多。中断一天会从第 1 天重新开始（补签卡可以补 1 天）。</p><ul class="led">'+rows+'</ul><p class="sub" style="margin:8px 0 4px">里程碑奖励（一次性）：</p><ul class="led">'+mrows+'</ul><p class="sub" style="margin:8px 0 0">签到获得的信用累计上限为 '+CK_CAP+' 分（你已获得 '+(c.earned||0)+' 分），防止只靠点击就刷出高信用；达到上限后继续签到，仍然有勋章和物品奖励。不积跬步，无以至千里。</p></details>'+
+  ((S.items.length||S.card||S.tix)?'<p class="sub">我的物品：'+S.items.map(function(i){return i.e+i.n;}).join('、')+(S.card?' 补签卡 ×'+S.card:'')+(S.tix?' 免费调解券 ×'+S.tix:'')+'</p>':'')+'</div>';
+}
+function doTip(a){
+  if(!(a>=1&&a<=1000)){toast('打赏金额请填 1 到 1000 元');return;}
+  S.tips.unshift({n:'我',a:a,m:(document.getElementById('tipm')&&document.getElementById('tipm').value||'').trim().slice(0,30),ts:Date.now()});
+  if(!S.items.some(function(i){return i.n==='平台之友';}))S.items.push({n:'平台之友',e:'💝',ts:Date.now()});
+  save();render();toast('感谢打赏 ¥'+a+'！（演示，未实际扣款；打赏不增加信用）');
+}
+function tipPanel(){
+  return '<div class="panel"><h2>☕ 支持任务大厅</h2><p class="sub">非担保任务完全免费，平台只对“平台担保”任务收 10% 服务费。如果平台帮到了你，欢迎自愿打赏，帮助平台付服务器和运营费用。打赏不增加信用，也不影响匹配和排名。</p><div class="bar">'+[5,10,20,50].map(function(a){return b('tip','¥'+a,String(a),'');}).join('')+'<input id="tipc" type="number" min="1" placeholder="自定义" style="width:84px"><input id="tipm" maxlength="30" placeholder="留言（可选）" style="flex:1;min-width:110px"><button class="btn pri" data-act="tipc">打赏</button></div><ul class="led">'+S.tips.slice(0,5).map(function(t){return '<li><span>💝 '+esc(t.n)+' 打赏 ¥'+t.a+(t.m?'：'+esc(t.m):'')+'</span></li>';}).join('')+'</ul><p class="sub">演示：未接入真实支付。上线需接入微信或支付宝，并取得相应资质。</p></div>';
+}
+function incomePanel(){
+  var fee=S.tasks.filter(function(t){return t.dep&&rtOf(t)==='money'&&t.status==='done';}).reduce(function(a,t){return a+Math.round(t.reward*0.1);},0),tip=S.tips.reduce(function(a,t){return a+t.a;},0);
+  return '<div class="stats" style="margin-top:10px"><div><b>¥'+fee+'</b>担保服务费（10%）</div><div><b>¥'+tip+'</b>用户打赏</div><div><b>¥'+(fee+tip)+'</b>平台收入合计（演示）</div></div>';
+}
+function revList(){return S.tasks.filter(function(t){return t.status==='done'&&t.rating>=4&&t.review;}).sort(function(a,b){return b.rating-a.rating||b.ts-a.ts;});}
+function revPanel(){
+  var l=revList(),n=ui.hl||6;
+  return '<div class="panel"><h2>过往精彩需求（'+l.length+' 条高星好评）</h2><p class="sub">完成并获得 4 星以上好评的任务，会自动出现在这里，点开可看详情。</p><div class="grid">'+l.slice(0,n).map(function(t){return '<article class="card ch"><div class="tags"><span class="tag ch">'+'★'.repeat(t.rating)+'</span><span class="tag">'+esc(t.cat)+'</span></div><h3 data-act="dopen" data-id="r:'+t.id+'" style="cursor:pointer">'+esc(t.t)+'<span style="color:var(--mut)"> ›</span></h3><p class="desc" data-act="dopen" data-id="r:'+t.id+'">“'+esc(t.review)+'”</p><div class="meta"><span>'+esc(t.taker)+' 完成 · '+esc(t.poster)+' 评价</span></div></article>';}).join('')+(l.length>n?'<div style="grid-column:1/-1;text-align:center"><button class="btn" data-act="hmore">查看更多好评</button></div>':'')+'</div></div>';
+}
+var DETC={'技术开发':'明确功能清单和技术栈;交付源码和运行说明;按里程碑验收并附测试记录','设计创意':'先出方向稿再精修;写明修改轮数;交付源文件并约定版权归属','写作翻译':'先做样稿确认风格;统一术语表;交稿附修改说明','教育辅导':'第一节课先摸底;每次课后给简短反馈;约好沟通时间和边界','生活服务':'上门前确认现场情况;服务前后拍照留存;准时到达，加价走平台确认','运营推广':'提供账号近期数据;把目标拆成可验证的指标;每周复盘一次','数据整理':'先用样本试做;保留原始数据备份;交付附处理说明','义工旅行':'书面确认每天工时和食宿;购买意外险;保留退出路线','租房住宿':'先看房再付款;合同写清押金退还条件;入住前拍照留存','搭子组队':'首次见面选公共场所;说清楚期待和费用分摊;约定中途退出办法','专属技能':'确认服务范围和交付标准;展示相关作品或资质;沟通和成果留在平台内','江湖救急':'只有高信用用户可接，全程在平台留痕;接单前确认地点和风险;完成后及时反馈平安'};
+var EXD=['技术开发|适合接定制开发、改版、接口对接类单子|先要功能清单和验收标准;按里程碑拆分并分阶段收款;交付附运行说明和测试记录|只靠口头需求，最后无限修改','设计创意|适合 Logo、海报、包装、插画类单子|先出方向稿再精修;写明修改轮数;约定源文件和版权归属|一上来就做精修，被整套推翻','写作翻译|适合文案、翻译、润色类单子|先做样稿确认风格;统一术语表;交稿附修改说明|不确认受众和风格就开写','教育辅导|适合家教、陪练、课程类单子|第一节课做摸底;每次课后发反馈;约好沟通时间和边界|试听把内容讲满，后面没东西可讲','生活服务|适合上门、跑腿、搬运类单子|上门前视频确认现场;前后拍照留存;加价走平台确认|口头加价，事后各说各话','运营推广|适合账号运营、投放、活动类单子|先看账号近 30 天数据;把目标拆成可验证指标;每周复盘一次|承诺涨粉或去做刷量','数据整理|适合清洗、录入、统计类单子|先拿 20 行样本试做;原始数据留备份;交付附处理说明|直接在原文件上改，出错无法回退','义工旅行|适合换宿、志愿、支教类项目|先看往期评价;书面确认工时和食宿;买好意外险|没问清工作量，到了才发现不合适','租房住宿|适合合租、短租、换宿类需求|先看房再付钱;合同写清押金退还;入住前拍照留存|提前把钱直接转给陌生人','搭子组队|适合旅行、观影、运动、自习类需求|第一次见面选公共场所;提前说清期待和费用分摊;约定中途退出办法|没说清预算和节奏，路上才发现不合拍','影视后期|适合剪辑、调色、特效类单子|先确认交付规格;先出样片;使用商用授权的素材|没有备份素材，工程损坏无法恢复','家政厨司|适合保洁、做饭、司机、搬运类单子|先约定服务范围和清单;确认人数、路线或食材;完成后拍照并保留记录|范围没约好，到场后临时加活','接单通用|适合所有想积累信用的新手|从小单做起;先沟通再点接受;做完主动请对方评价|接了又放弃，扣信用还影响后续接单'];
+function infoRows(rows){return '<ul class="led">'+rows.map(function(r){return '<li><span>'+r[0]+'</span><span>'+r[1]+'</span></li>';}).join('')+'</ul>';}
+function detTask(t){
+  var sc=secs(t),r=rtOf(t),m=r==='money',fee=(t.dep&&m)?Math.round(t.reward*0.1):0;
+  var rows=[['行业',esc(t.cat)+(t.skill?' · '+esc(t.skill):'')],['方式和范围',esc(t.mode)+' · '+scopeOf(t)+(t.loc?' · '+esc(t.loc):'')],['完成期限',t.days+' 天内'],['报酬',esc(rw(t))],['接单要求','信用 ≥ '+t.min],['发布者',t.poster==='我'?'我':esc(t.poster)+'（信用 '+t.pc+'）'],['状态',ST[t.status]]];
+  if(t.taker)rows.push(['接单人',esc(t.taker)]);
+  if(t.slots)rows.push(['人数',(t.joined||0)+' / '+t.slots]);
+  if(t.rating)rows.push(['评分','★'.repeat(t.rating)+'☆'.repeat(5-t.rating)]);
+  var pay=m?(t.dep?['平台担保：发布者已交定金 ¥'+t.dep+'，验收通过才放款','平台收取 10% 服务费 ¥'+fee+'，接单人实收 ¥'+(t.reward-fee)]:['非担保任务，平台不收服务费','报酬由双方在平台内约定，建议开工前确认']):[r==='point'?'完成后获得 '+t.reward+' 公益积分（与信用积分分开）':'奖励形式：'+esc(rw(t)),'非金钱奖励同样请在平台内约定清楚'];
+  pay.push('完成并获好评，信用约 +10 到 +18（每天最多涨 30 分）');
+  return '<h2 style="margin:0 0 6px">'+esc(t.t)+'</h2><div class="tags">'+(t.cat==='江湖救急'?'<span class="tag" style="background:#d9381e;color:#fff">🚨 江湖救急</span>':'')+'<span class="tag st">'+ST[t.status]+'</span></div>'+
+  '<h3>任务介绍</h3><p style="margin:0">'+esc(t.det||t.desc)+'</p><h3>任务信息</h3>'+infoRows(rows)+
+  '<h3>任务要求</h3>'+ul(sc.req)+'<h3>规则</h3>'+ul(sc.rules)+'<h3>注意事项</h3>'+ul(sc.notes)+
+  '<h3>交付与验收</h3>'+ul(['成果在平台内提交，发布者在期限内验收并评分','验收标准以任务描述和沟通记录为准，开工前先确认','有分歧可以申请调解客服，信用 ≥ 150 免费'])+
+  '<h3>报酬与保障</h3>'+ul(pay)+
+  '<h3>安全提醒</h3>'+ul(['全程在平台内沟通，聊天记录是纠纷证据','不要私下转账，不要垫付','线下见面选公共场所，并告诉朋友你的行程'])+
+  (t.review?'<h3>好评</h3><p style="margin:0">“'+esc(t.review)+'”</p>':'')+
+  '<div class="act" style="margin-top:12px">'+btns(t)+((t.poster!=='我'||t.taker)?'<button class="btn" data-act="chat" data-id="'+t.id+'">💬 沟通</button>':'')+(t.poster!=='我'?'<button class="btn" data-act="addfriend" data-id="'+esc(t.poster)+'">加发单人好友</button>':'')+'</div>';
+}
+function detRev(t){
+  return '<h2 style="margin:0 0 6px">'+esc(t.t)+'</h2><div class="tags"><span class="tag ch">'+'★'.repeat(t.rating)+'</span><span class="tag">'+esc(t.cat)+'</span></div><h3>评价</h3><p style="margin:0;font-size:16px">“'+esc(t.review)+'”</p><p class="sub">'+esc(t.taker)+' 完成，'+esc(t.poster)+' 评价。完成并获得 4 星以上好评的任务会自动出现在首页“过往精彩需求”。</p><h3>任务回顾</h3>'+infoRows([['报酬',esc(rw(t))],['完成期限',t.days+' 天'],['方式',esc(t.mode)+' · '+scopeOf(t)],['要求信用','≥ '+t.min]])+'<p style="margin-top:12px"><button class="btn" data-act="dopen" data-id="t:'+t.id+'">查看完整任务详情</button></p>';
+}
+function detExp(p){
+  var e=EXD.filter(function(x){return x.indexOf(p.cat+'|')===0;})[0],a=e?e.split('|'):['','','','',''];
+  return '<h2 style="margin:0 0 6px">'+esc(p.t)+'</h2><div class="tags"><span class="tag">'+esc(p.cat)+'</span><span class="tag">'+esc(p.u)+' 分享</span></div><h3>经验要点</h3><p style="margin:0">'+esc(p.c)+'</p><h3>适用场景</h3><p style="margin:0">'+esc(a[1]||'适合想少走弯路的新手')+'</p><h3>具体做法</h3>'+ul((a[2]||'').split(';'))+'<h3>常见误区</h3><p style="margin:0">'+esc(a[3]||'凭感觉做，没有提前约定')+'</p>'+
+  '<div class="act" style="margin-top:12px">'+b('elike',(p.liked?'♥ ':'♡ ')+p.likes,p.id,p.liked?'pri':'')+b('efav',(p.faved?'★ ':'☆ ')+p.favs,p.id,p.faved?'pri':'')+b('eshare','分享 '+p.shares,p.id,'')+'</div>'+
+  (p.u!=='我'?'<p style="margin:8px 0 0">'+b('addfriend','加作者好友',esc(p.u),'')+'</p>':'')+'<h3>评论（'+p.cm.length+'）</h3>'+(p.cm.map(function(c){return '<div class="meta"><span><b>'+esc(c.u)+'</b>：'+esc(c.txt)+'</span></div>';}).join('')||'<p class="sub">还没有评论，来说两句吧。</p>')+'<div class="bar" style="margin:8px 0 0"><input id="ec_'+p.id+'" maxlength="120" placeholder="写评论" style="flex:1"><button class="btn pri" data-act="ecm" data-id="'+p.id+'">发送</button></div>';
+}
+function renderDet(){
+  var d=document.getElementById('det');if(!d)return;
+  var h='';
+  if(ui.det){var k=ui.det.split(':'),id=ui.det.slice(2);
+    if(k[0]==='t'){var t=find(id);if(t)h=detTask(t);}
+    else if(k[0]==='r'){var t2=find(id);if(t2)h=detRev(t2);}
+    else if(k[0]==='x'){var p=S.exp.filter(function(x){return x.id===id;})[0];if(p)h=detExp(p);}
+    else if(k[0]==='c'){var ch=S.chats[id];if(ch)h=detChat(ch);}
+  }
+  if(!h){ui.det=null;d.className='hide';d.innerHTML='';return;}
+  d.className='';d.innerHTML='<div class="sheet"><div style="text-align:right"><button class="btn" data-act="close">关闭 ✕</button></div>'+h+'</div>';
+  var cm=document.getElementById('cmsgs');if(cm&&'scrollTop' in cm)cm.scrollTop=cm.scrollHeight;
+  var ci=document.getElementById('cin');if(ci&&ci.focus)ci.focus();
+}
+function seed6(){
+  var D=['官网改版两周交付|技术开发|p|1800|5|沟通顺畅，交付前自己测了一遍，还附了运行说明，下次还找他。|云帆科技|阿杰','小程序点单系统|技术开发|p|2500|5|按里程碑分三次验收，每次都准时，代码注释清楚，维护很省心。|老张烧烤|小北','数据库慢查询优化|技术开发|p|900|5|定位问题很准，页面速度从 6 秒降到 1 秒，专业。|恒信咨询|晓晴','公司 H5 活动页|技术开发|p|1200|4|效果不错，中间改了一次需求，对方耐心配合，略有延迟。|青禾农场|阿杰','公益网站无障碍测试|技术开发|c|35|5|报告细致到每个页面，视障同学反馈真的好用，感谢。|无碍同行|Lily',
+'品牌 Logo 设计|设计创意|p|600|5|先给了三个方向，沟通后精修，最终稿很贴合我们的气质。|小满设计|晓晴','流浪动物领养海报|设计创意|c|25|5|三天做完，海报转发量很高，领养电话一下多了起来。|暖爪救助站|Lily','婚礼电子请柬|设计创意|p|300|5|动效很美，亲友都夸好看，源文件也完整交付了。|王女士|小北','菜单与包装设计|设计创意|p|800|4|整体好看，印刷前提醒了出血线，很专业。|桌游店小米|阿宁','英文技术文档翻译|写作翻译|p|720|5|术语统一，附了术语表，母语同事审核也说自然。|云帆科技|Lily',
+'产品详情页文案|写作翻译|p|400|5|卖点提炼得很准，转化率比以前高，愿意长期合作。|青禾农场|老周','非遗口述史整理|写作翻译|c|45|5|保留了老人的方言味道，家属看了很感动。|老手艺基金会|晓晴','简历润色与面试辅导|教育辅导|p|200|5|改完简历后拿到了三个面试，模拟面试的问题也很实用。|陈女士|陈老师','初二数学一对一辅导|教育辅导|p|300|5|孩子从害怕数学到愿意主动做题，每次课后都有反馈。|陈女士|陈老师','乡村小学视频课|教育辅导|c|30|5|孩子们听得入迷，老师说这是学期里最受欢迎的一课。|山里的光|阿杰',
+'免费英语口语陪练|教育辅导|s|0|5|氛围轻松，纠正发音很细心，坚持了一个月进步明显。|Lily|小北','搬家帮手半天|生活服务|p|200|5|准时到场，家具包得很仔细，没有任何磕碰。|李先生|老周','陪老人看病挂号|生活服务|p|150|5|对老人特别有耐心，全程发消息报平安，家属很放心。|周女士|阿宁','宠物上门喂养 3 天|生活服务|p|150|5|每天发视频，猫咪状态很好，细心得像自己养的一样。|李先生|小北','社区老人智能手机课|生活服务|c|30|5|讲得慢又清楚，老人们都学会了视频通话。|社区服务站|晓晴',
+'小红书账号起号|运营推广|p|1200|4|思路清晰，一周复盘很细，数据有明显提升。|青禾农场|老周','短视频脚本策划|运营推广|p|600|5|选题新颖，拍出来的内容互动量翻了倍。|星河工作室|阿杰','公益公众号排版|运营推广|c|25|5|版面干净，每周准时交付，志愿者精神值得点赞。|暖爪救助站|Lily','校园活动地推|运营推广|p|500|4|执行力强，现场数据记录完整，建议提前备好物料。|高校课题组|小北','2000 条问卷数据清洗|数据整理|p|350|5|去重规则讲得明白，附了处理说明，一次验收通过。|高校课题组|晓晴',
+'发票信息录入|数据整理|p|180|5|准确率很高，抽查零错误，速度也快。|恒信咨询|阿宁','图书馆藏书目录整理|数据整理|c|20|5|八百本书整理得整整齐齐，读者找书方便多了。|暖心图书角|老周','古镇客栈换宿 2 周|义工旅行|c|30|5|干活认真，和旅客相处很好，客栈同事都舍不得他走。|大理小院青旅|阿杰','草原牧场义工|义工旅行|c|40|5|吃苦耐劳，孩子们很喜欢他，是我们见过最靠谱的义工之一。|天山牧场|Lily','山区支教短期|义工旅行|c|50|5|备课认真，课堂互动好，孩子们还写信表示感谢。|高原伙伴公益|晓晴',
+'生态农场换宿|义工旅行|s|0|4|干活踏实，沟通及时，希望下次能待更久。|Green Valley Farm|小北','合租找室友|租房住宿|p|0|5|入住前把约定都写清楚了，大家相处融洽。|王女士|阿宁','沙发换宿 3 晚|租房住宿|s|0|5|房东很热情，带我逛了老城，成了朋友。|阿宁|Lily','短租转租|租房住宿|p|0|4|合同和押金流程清楚，退租时没有扣费纠纷。|小北|老周','周末徒步搭子|搭子组队|s|0|5|路线安排合理，节奏刚好，一路聊得很开心。|小北|晓晴',
+'自驾川西搭子|搭子组队|s|0|5|费用 AA 透明，路上互相照顾，旅程很完美。|老周|阿杰','观影搭子|搭子组队|s|0|5|看完聊了一下午，感觉认识了新朋友。|小鹿|Lily','考研自习搭子|搭子组队|s|0|5|每天互相打卡，真的坚持下来了，感谢监督。|晓晴|小北','旅行 vlog 剪辑|专属技能|p|480|5|节奏卡点很准，音乐也选得好，朋友圈点赞爆了。|阿宁|星河前辈','婚礼视频精剪|专属技能|p|900|5|把几个小时素材剪成十分钟，情绪满满，全家看哭了。|王女士|星河前辈',
+'产品三维建模|专属技能|p|1200|5|细节到位，渲染图直接用在了产品页上。|小满设计|阿杰','活动现场跟拍|专属技能|p|600|5|抓拍很自然，当天晚上就交了精修图，效率很高。|桌游店小米|阿宁','上门做月子餐|专属技能|p|400|5|口味清淡营养，产妇胃口很好，厨房收拾得很干净。|陈女士|老周','机场接送|专属技能|p|180|5|准时、车内干净，一路很稳，非常放心。|李先生|老周','开荒保洁|专属技能|p|300|5|边边角角都擦到了，比预期干净得多。|王女士|阿宁',
+'新娘跟妆|专属技能|p|600|5|妆面持久，沟通风格很细致，拍照特别好看。|周女士|晓晴','自学 Python 入门辅导|专属技能|s|0|5|讲得通俗，作业有反馈，现在已经能自己写小脚本了。|晓晴|小北','紧急代课一节|江湖救急|p|400|5|两小时前通知也能到，课讲得特别好，救场英雄。|晓晴|陈老师','夜间紧急送药|江湖救急|p|120|5|半夜准时送到，还帮忙确认了用法，特别感谢。|陈女士|阿杰','老人走失协助排查|江湖救急|c|60|5|反应很快，细心排查，最后在公园找到了老人，感恩。|夕阳红服务站|晓晴'];
+  return D.map(function(l){
+    var a=l.split('|'),k=a[2],w=+a[3];
+    var t=mk(a[0],a[1],k==='p'?'paid':k==='c'?'charity':'swap',w,rn(2,10),'远程',0,a[6],rn(200,600),a[0]+'。双方在平台内沟通确认需求，按约定交付并验收通过。','',rn(60,3000));
+    t.status='done';t.taker=a[7];t.rating=+a[4];t.review=a[5];t.scope='远程';
+    if(k==='s'){t.rt='free';t.rtext='免费互助';}
+    if(a[1]==='租房住宿'){t.rt='gift';t.rtext='详情沟通';}
+    if(k==='p'&&w>=600&&a[1]!=='租房住宿')t.dep=Math.round(w*0.2);
+    return t;
+  });
+}
+function seed3(){var L=[
+['热映科幻片观影搭子（周六下午场）','搭子组队','swap',0,6,'驻场',0,'小鹿',120,'一个人看电影太冷清，想找个搭子看完聊聊，AA 票价。','上海·静安',2,{rt:'free',rtext:'AA 票价',scope:'同城',slots:2,joined:1}],
+['吃饭搭子：周五晚火锅（AA）','搭子组队','swap',0,3,'驻场',0,'阿K',90,'四个人才能点双人套餐，缺 2 人，随便聊聊。','广州·天河',4,{rt:'free',rtext:'AA 聚餐',scope:'同城',slots:4,joined:2}],
+['陪独居老人聊天、读报（每周 1 次）','生活服务','charity',20,60,'驻场',0,'夕阳红服务站',260,'陪老人聊天 1 小时，读报纸，可带孩子一起来。','南京·鼓楼',26,{rt:'point',scope:'同城'}],
+['乡村小学视频课：讲讲你的职业','教育辅导','charity',30,14,'远程',0,'山里的光',300,'给 30 个孩子线上讲你的职业故事 40 分钟。','',30,{rt:'point',scope:'远程'}],
+['社区反诈科普小讲堂','教育辅导','charity',25,10,'驻场',80,'幸福里居委会',150,'为老人讲解常见骗局，有现成课件。','幸福里小区',18,{rt:'point',scope:'同城'}],
+['无偿法律咨询志愿者（每月 2 小时）','写作翻译','charity',40,90,'远程',150,'法援公益站',340,'为低收入者解答劳动、租房类常见问题，需法律背景。','',40,{rt:'point',scope:'远程'}],
+['出差代办：苏州展会现场拍照和取资料','生活服务','paid',300,2,'驻场',80,'恒信咨询',300,'到场拍摄 20 张展位照片，取回资料寄出。','江苏·苏州',5,{dep:150,scope:'跨省'}],
+['出差代办：外地仓库验货（差旅另报）','生活服务','paid',450,3,'驻场',150,'青禾农场',260,'按清单核对 50 件货品并拍照。','山东·临沂',27,{dep:200,scope:'跨省'}],
+['陪同参展 3 天（包住 + 每天补贴）','运营推广','paid',0,5,'驻场',150,'星河工作室',420,'协助接待客户，包住宿，每天补贴 200 元。','深圳',7,{rt:'gift',rtext:'包住 + 每天 ¥200',dep:300,scope:'跨省'}],
+['小店点单小程序开发（含 3 个月维护）','技术开发','paid',2500,20,'远程',150,'老张烧烤',110,'功能：点单、支付、核销。验收后分两次付款。','',9,{dep:800,scope:'远程'}],
+['婚礼电子请柬设计','设计创意','paid',300,4,'远程',0,'小满设计',210,'中式风格，含动效，可修改 3 轮。','',12,{scope:'远程'}],
+['整理非遗传承人口述史（录音转文字）','写作翻译','charity',45,30,'远程',80,'老手艺基金会',280,'把 10 小时录音整理成稿，保留方言特色。','',33,{rt:'point',scope:'远程'}],
+['整理社区图书馆藏书目录','数据整理','charity',20,7,'远程',0,'暖心图书角',130,'把 800 本书的信息录入表格。','',6,{rt:'point',scope:'远程'}],
+['免费英语口语陪练（每周 2 次）','教育辅导','swap',0,30,'远程',0,'Lily',310,'互相陪练 30 分钟，主题随意，限 4 人。','',10,{rt:'swap',rtext:'互相陪练，免费',scope:'远程',slots:4,joined:2}],
+['川西客栈换宿 10 天（包吃住）','义工旅行','charity',35,10,'驻场',80,'折多山客栈',250,'帮忙接待和打扫，空闲可徒步，结识各地旅行者。','四川·康定',14,{rt:'lodge',rtext:'包吃包住 + 35 公益积分',scope:'跨省'}],
+['新疆牧场义工：放牧体验 2 周','义工旅行','charity',40,14,'驻场',150,'天山牧场',330,'协助日常放牧与挤奶，包吃住，需体检合格。','新疆·伊犁',36,{rt:'lodge',rtext:'包吃包住 + 40 公益积分',scope:'跨省'}],
+['日本民宿换宿 1 个月','义工旅行','swap',0,30,'驻场',300,'Sakura House',390,'每天 5 小时清洁和接待，换食宿，需英语或日语交流能力。','日本·京都',20,{rt:'lodge',rtext:'包吃包住（劳动换宿）',scope:'跨国'}],
+['免押金短租 1 个月（信用 ≥ 150）','租房住宿','paid',0,30,'驻场',150,'阿宁',320,'近地铁，月租 2000，信用好的用户免押金。','杭州·西湖',15,{rt:'gift',rtext:'月租 ¥2000，免押金',scope:'同城'}],
+['毕业生拼租：三居室找 2 位室友','租房住宿','paid',0,14,'驻场',80,'小北',95,'每人每月 1800，合同在平台留存。','北京·海淀',22,{rt:'gift',rtext:'每人每月 ¥1800',scope:'同城',slots:2,joined:1}],
+['考研自习搭子（互相监督打卡）','搭子组队','swap',0,60,'远程',0,'晓晴',650,'每天线上自习 4 小时，晚上互相汇报进度。','',8,{rt:'free',rtext:'免费互助',scope:'远程',slots:3,joined:1}],
+['周末半程马拉松陪跑搭子','搭子组队','swap',0,12,'驻场',0,'阿杰',420,'配速 6 分半，一起跑完，赛后合影。','成都',3,{rt:'free',rtext:'免费，互相鼓励',scope:'同城',slots:2,joined:0}],
+['桌游局缺 2 人（新手友好）','搭子组队','swap',0,2,'驻场',0,'桌游店小米',85,'晚上 7 点开局，教学免费，AA 场地费。','武汉·武昌',1,{rt:'free',rtext:'AA 场地费',scope:'同城',slots:6,joined:4}],
+['帮独居老人每周买菜一次','生活服务','charity',15,60,'驻场',0,'社区服务站',280,'按清单采购，送到门口，不必进屋。','社区附近',34,{rt:'point',scope:'同城'}],
+['宠物上门喂养 3 天','生活服务','paid',150,3,'驻场',80,'李先生',95,'每天喂食、铲屎，发照片报平安。','上海·浦东',5,{dep:50,scope:'同城'}],
+['代排队取号（周三上午）','生活服务','paid',80,1,'驻场',0,'陈女士',120,'医院窗口排队，取到号后交给本人。','同城',2,{scope:'同城'}],
+['公益组织公众号排版（每周 1 篇）','运营推广','charity',25,60,'远程',0,'暖爪救助站',240,'提供文字和图片，你负责排版和发布。','',42,{rt:'point',scope:'远程'}],
+['为视障者校对网课字幕','技术开发','charity',35,10,'远程',80,'无碍同行',310,'校对 3 节课字幕，标注图表描述。','',16,{rt:'point',scope:'远程'}],
+['社区老人免费拍证件照','设计创意','charity',20,3,'驻场',0,'幸福里居委会',150,'周日上午在活动室，需自带相机，可后期修图。','幸福里小区',11,{rt:'point',scope:'同城'}],
+['免费高考志愿填报咨询（每人 30 分钟）','教育辅导','swap',0,20,'远程',150,'陈老师',380,'帮农村学生分析院校和专业，限 10 人。','',25,{rt:'free',rtext:'免费咨询',scope:'远程'}],
+['顺路带礼物去外地：杭州到上海','生活服务','paid',200,5,'驻场',150,'阿宁',320,'当面交接并拍照，路费另计。','杭州→上海',28,{dep:100,scope:'跨省'}]
+];return L.map(function(a){return x(mk(a[0],a[1],a[2],a[3],a[4],a[5],a[6],a[7],a[8],a[9],a[10],a[11]),a[12]);});}
+function talkPost(){
+  var k=v('tk'),s=v('tt');
+  if(s.length<5){toast('多写几个字，至少 5 个');return;}
+  if(BAD.test(s)){toast('内容含违规词，请修改');return;}
+  if(Date.now()-(S.lastTalk||0)<5000){toast('发言太快了，稍后再试');return;}
+  S.lastTalk=Date.now();S.talk.unshift({id:'c'+Date.now(),u:'我',k:k,txt:s.slice(0,200),ts:Date.now(),likes:0});save();render();toast('已发布');
+}
+function talkAct(a,id){
+  var c=S.talk.filter(function(x){return x.id===id;})[0];if(!c)return;
+  if(a==='like')c.likes++;else if(c.u==='我')S.talk.splice(S.talk.indexOf(c),1);
+}
+function home(){
+  var CS=[['一个大学生靠“技能换宿”，用 21 天走完云南','义工旅行','每天帮青旅前台 4 小时，换来 21 晚住宿和 6 个新朋友'],['陌生人陪我看了一场电影','搭子组队','一位老人想看新片，找了个年轻搭子，看完还聊了一下午'],['免费教 3 位同学入门 Python','教育辅导','四周后，其中一位拿到了第一份实习'],['出差代办：帮外地客户签收并拍照','生活服务','2 小时完成，赏金 ¥120，平台担保结算'],['公益海报 3 天做完，领养率翻倍','设计创意','设计师获得公益积分和一面锦旗'],['沙发主人和旅行者成了朋友','租房住宿','免费住 3 晚，互评 5 星，第二年旅行者回请吃饭']];
+  var hot=S.tasks.filter(function(t){return t.status==='open';}).sort(function(a,b){return (b.dep?1:0)-(a.dep?1:0)||b.ts-a.ts;}).slice(0,4);
+  var tk=S.talk.slice().sort(function(a,b){return b.ts-a.ts;});
+  return '<div class="panel" style="padding:10px 14px"><b>📢 温馨提示</b> 平台目前规模还小，服务器够用。如果人变多，可能遇到攻击或服务器压力过大导致卡顿甚至崩溃，到时需要购买更多服务器，请大家理解和支持。</div>'+ckPanel()+'<div class="panel"><h2>凡是需求，皆可成单</h2><p>每个人都可以发布需求，也可以接下别人的需求：赚钱、换食宿、免费互助、做公益、找搭子，甚至环游中国、去海外。<b>信用</b>是通行证，守约、服务好，就能在这里免费享用越来越多的机会。</p><p><button class="btn pri" data-act="go" data-id="plaza">去任务广场</button> <button class="btn" data-act="go" data-id="post">发布需求</button> <button class="btn" data-act="go" data-id="rules">规则与防骗指南</button></p></div>'+
+  revPanel()+
+  '<div class="panel"><h2>热门去处和主题</h2><div class="tags">'+['西藏','新疆','云南','出差','搭子','国外','北欧','南极北极','欧亚非','旅行','江湖救急','组队'].map(function(x){return '<button class="btn" data-act="search" data-id="'+x+'">'+x+'</button>';}).join('')+'</div></div>'+'<div class="panel" style="border-color:#d9381e"><h2>🚨 江湖救急</h2><p class="sub">遇到急难，找信得过的人。接单者信用至少 300，发布者信用至少 100，都有平台担保。</p><button class="btn pri" data-act="catgo" data-id="江湖救急">查看救急任务</button></div>'+'<div class="panel"><h2>专属技能（'+PROFS.length+' 个职业）</h2><div class="tags">'+PROFS.map(function(p){return '<button class="btn" data-act="skill" data-id="'+p.n+'">'+p.e+' '+p.n+'</button>';}).join('')+'</div></div>'+'<div class="panel"><h2>热门任务</h2><div class="grid">'+hot.map(card).join('')+'</div></div>'+
+  tipPanel()+'<div class="panel"><h2>讨论区：问题、建议和想法</h2><div class="bar"><select id="tk"><option>问题</option><option>建议</option><option>想法</option><option>吐槽</option></select><input id="tt" maxlength="200" style="flex:1;min-width:200px" placeholder="说说你的问题，或者希望平台怎么改进"><button class="btn pri" data-act="talk">发布</button></div><ul class="led">'+tk.map(function(c){return '<li><span><b>['+c.k+']</b> '+esc(c.txt)+' <span class="sub">— '+esc(c.u)+'</span></span><span><button class="btn link" data-act="like" data-id="'+c.id+'">♥ '+c.likes+'</button>'+(c.u==='我'?'<button class="btn link" data-act="tdel" data-id="'+c.id+'">删除</button>':'')+'</span></li>';}).join('')+'</ul></div>';
+}
+function rules(){
+  var P=[['接单后不干、失联','−15 分；累计 3 次限制接单 7 天'],['虚假信息、虚假交付','−30 分并下架；严重者拉黑'],['要求提前转账、垫付、私下交易','直接拉黑'],['恶意举报','每次 −5 分；累计 3 次暂停举报'],['互刷信用、开小号','相关积分清零，永久封号'],['辱骂、骚扰他人','−20 分；严重者拉黑'],['定价明显过低或高价诱导','任务下架；重复者限制发布']];
+  return '<div class="panel"><h2>告示栏</h2>'+ul(['【须知】所有任务和沟通请留在平台内，聊天记录会作为纠纷证据。','【提醒】信用低于 20 分将被限制接单和发布。','【新规】每天信用最多涨 30 分，防止刷分。','【提示】平台目前规模还小、服务器够用；人多时可能遇到攻击或服务器不足而崩溃，需要购买服务器，请理解。','【调解】信用 ≥ 150 的用户可免费申请调解客服。','【调查】发布杂乱、重复、虚假任务，会被调查部警告，累计 3 次封号。'])+'</div>'+
+  '<div class="two"><div class="panel"><h2>公平、公正、公开、透明</h2>'+ul(['<b>公平</b>：所有人用同一套规则，信用和服务态度好的优先，与花钱多少无关','<b>公正</b>：举报先核实再处理，被处罚者可申诉；恶意举报同样处罚','<b>公开</b>：规则、处罚标准、黑名单（脱敏）都公示在这里','<b>透明</b>：信用每一次增减都有原因和记录，可在“我的面板”查看'])+'</div>'+
+  '<div class="panel"><h2>两套积分，别搞混</h2>'+ul(['<b>信用积分</b>：记录守约和服务态度，决定你能接什么任务、享受什么免费权益，违规会扣，不能买卖转让','<b>公益积分</b>：记录你做了多少公益，用于荣誉和证书，不能兑换成信用，也不能抵扣违规'])+'</div></div>'+
+  '<div class="panel"><h2>违规行为与处罚</h2><ul class="led">'+P.map(function(p){return '<li><span>'+p[0]+'</span><span>'+p[1]+'</span></li>';}).join('')+'</ul></div>'+
+  '<div class="panel"><h2>黑名单公示</h2><ul class="led">'+(S.black.map(function(b){return '<li><span>'+esc(b.n)+'：'+esc(b.w)+'</span><span>'+esc(b.p)+' · '+esc(b.d)+'</span></li>';}).join('')||'<li>暂无</li>')+'</ul><p class="sub">被拉黑的用户可以在 30 天后申诉复核（演示）。</p></div>'+
+  '<div class="panel"><h2>费用说明（公开透明）</h2>'+ul(['<b>非担保任务完全免费</b>，平台不收任何服务费','<b>平台担保任务</b>（发布者交了定金）：平台收取 10% 服务费，接单人实收 90%','<b>打赏</b>完全自愿，用于服务器和运营开销；打赏不增加信用，也不影响匹配和排名','信用评估还会参考你的长期活跃度（例如坚持每日签到），但权重很小，不会替代守约和服务评价','每日签到：连续越久每天奖励越多，签到获得的信用累计上限 300 分'])+'</div>'+'<div class="panel"><h2>警告与封号制度</h2>'+ul(['调查部会审查杂乱、重复、虚假的任务，发现后先下架并发出警告','第 1 次警告：任务下架，信用 −10','第 2 次警告：信用 −20，限制发布 7 天','第 3 次警告：封号并在黑名单公示','被封号的用户 30 天后可申诉复核（演示）'])+'</div>'+'<div class="panel"><h2>江湖救急与调解客服</h2>'+ul(['<b>江湖救急</b>：遇到急难的求助。接单者信用至少 300，发布者信用至少 100，必须有平台担保','<b>调解客服</b>：信用 ≥ 150 免费申请；信用不足需付 ¥20 手续费（演示）'])+'</div>'+'<div class="panel"><h2>防骗指南</h2>'+ul(['<b>一定要在平台内沟通并保存聊天记录</b>，出了问题这是最重要的证据','不要私下转账，不要先垫付，不要“先付款再返现”','陌生链接、二维码不要点；不要把证件照、验证码发给任何人','线下见面选公共场所，告诉朋友你的行程；住宿类、出境类任务先核实对方身份','报酬远高于市场价、催你马上行动，多半是骗局','交了定金的“平台担保”任务更有保障，验收通过才放款','遇到可疑内容，用“举报”按钮，写清楚原因','更多真实套路见右上角“⋯”里的“骗局展示”（50 例）'])+'</div>'+
+  '<div class="panel"><h2>平台可能的漏洞与应对</h2>'+ul(['<b>刷信用</b>：每日增长上限、重复合作递减、金额过低只记 1 分、小号互刷封号','<b>定价胡来</b>：按行业有参考价，低于 30% 不能发布，远高于参考价会提示风险','<b>长期没人领</b>：24 小时无人领取会提示，可一键加价续期','<b>恶意接单不干</b>：按信用等级限制同时进行的任务数（新手 2、铜 3、银 5、金 8、钻石 12），放弃扣分，发布者可超时换人','<b>恶意举报</b>：先核实不直接下架，举报不成立扣分，累计 3 次暂停举报','<b>网络攻击</b>：上线后必须做 HTTPS、登录限流和验证码、输入过滤防注入、权限校验、日志审计、数据备份。演示版已对所有用户输入做转义'])+'</div>';
+}
+function blackPanel(){
+  return '<div class="panel"><h2>黑名单管理</h2><div class="form"><label>账号名<input id="bn" maxlength="20"></label><label>违规行为<input id="bw" maxlength="40"></label><label>处罚<input id="bp" maxlength="20" placeholder="永久封禁"></label></div><p><button class="btn pri" data-act="adm_black">加入并公示</button></p><ul class="led">'+S.black.map(function(b,i){return '<li><span>'+esc(b.n)+'：'+esc(b.w)+'（'+esc(b.p)+'）</span><button class="btn link" data-act="adm_unban" data-id="'+i+'">解除</button></li>';}).join('')+'</ul><p class="sub">输入账号名“我”可以测试被拉黑后无法接单和发布。</p></div>';
+}
+function render(){
+  head();
+  var v=document.getElementById('view');
+  v.innerHTML=ui.tab==='chat'?chatTab():ui.tab==='scam'?scamTab():ui.tab==='exp'?expTab():ui.tab==='service'?service():ui.tab==='home'?home():ui.tab==='rules'?rules():ui.tab==='plaza'?plaza():ui.tab==='post'?post():ui.tab==='mine'?mine():ui.tab==='credit'?creditTab():ui.tab==='admin'?admin():rank();
+  if(ui.tab==='plaza')grid();
+  if(ui.tab==='exp')expGrid();
+  if(ui.tab==='mine')mineBody();
+  if(ui.tab==='scam')scamGrid();
+  renderDet();
+}
+
+/* 操作 */
+var acts={
+  invite:function(t,a){var n=a.getAttribute('data-u');t.status='doing';t.taker=n;chatFor(t);toast(n+' 接受了你的邀请，已创建聊天');},
+  join:function(t){if(!guard())return;t.im=1;t.joined=(t.joined||0)+1;if(t.joined>=t.slots){t.status='doing';t.taker='我';teamGroup(t);toast('小队成行，已自动建群，在聊天里查看');}else toast('已加入，还差 '+(t.slots-t.joined)+' 人');},
+  simJoin:function(t){t.joined=(t.joined||0)+1;if(t.joined>=t.slots){t.status='doing';t.taker='我';teamGroup(t);toast('小队成行，已自动建群，在聊天里查看');}else toast('又有 1 人加入');},
+  take:function(t){if(t.status!=='open'||trust()<t.min||!guard())return;t.status='doing';t.taker='我';chatFor(t);toast('接单成功，已创建与发单人的聊天，在任务详情点“沟通”');},
+  submit:function(t){t.status='submitted';toast('已提交，等待发布者验收');},
+  abandon:function(t){if(!confirm('放弃任务会扣 15 信用分，确定吗？'))return;t.status='open';t.taker=null;add(-15,'中途放弃「'+t.t+'」');toast('已放弃，信用 −15');},
+  simAccept:function(t){var r=Math.random()>.5?5:4;done(t,r);},
+  simTake:function(t){t.status='doing';t.taker=NAMES[Math.floor(Math.random()*NAMES.length)];toast(t.taker+' 接了你的任务');},
+  simSubmit:function(t){t.status='submitted';toast(t.taker+' 提交了成果，请验收');},
+  cancel:function(t){t.status='cancelled';toast('任务已撤销');},
+  report:function(t){if((S.misrep||0)>=3){toast('你的恶意举报已累计 3 次，举报功能暂停');return;}ui.rep=ui.rep===t.id?null:t.id;},
+  repWhy:function(t,a){S.reports.push({id:'r'+Date.now(),tid:t.id,why:a.getAttribute('data-w'),by:'我',st:'pending'});ui.rep=null;toast('已提交：平台先核实，不会直接下架。恶意举报会扣你的信用');},
+  boost:function(t){var r=rtOf(t);if(r==='money'||r==='point')t.reward=Math.round(t.reward*1.2)||10;else t.rtext=(t.rtext||RT[r])+' + 加送小礼物';t.ts=Date.now();t.days+=2;toast('已加价并续期 2 天，重新排到前面');},
+  reassign:function(t){t.status='open';t.taker=null;t.ts=Date.now();toast('已换人，任务重新开放');}
+};
+function done(t,r){
+  t.rating=r;t.status='done';if(r>=4&&!t.review)t.review=r===5?'合作非常愉快，交付超出预期，强烈推荐。':'整体满意，沟通顺畅，按时完成。';var ch=t.kind==='charity',m=rtOf(t)==='money';
+  if(t.taker==='我'){
+    var d=8+2*r,msg='';
+    if(m&&t.reward<20){d=1;msg='（金额过低，只记 1 分）';}
+    var same=S.tasks.filter(function(x){return x.taker==='我'&&x.status==='done'&&x.poster===t.poster;}).length;
+    if(same>3){d=Math.ceil(d/2);msg+='（重复合作，减半）';}
+    d=Math.max(0,Math.min(d,30-todayGain()));
+    if(d<=0)msg='（今日信用增长已达 30 分上限，防刷分）';
+    if(d>0)S.ledger.unshift({d:d,r:'完成「'+t.t+'」，获评 '+r+' 星'+msg,ts:Date.now(),k:'task'});
+    if(ch&&t.reward)S.gy.unshift({d:t.reward,r:'公益任务「'+t.t+'」',ts:Date.now()});
+    toast('验收通过，信用 +'+d+(ch&&t.reward?'，公益积分 +'+t.reward:'')+msg);
+  }else if(t.poster==='我'){add(4,'验收并评价「'+t.t+'」');toast('已验收，信用 +4');}
+}
+document.addEventListener('click',function(e){
+  if(e.target.id==='det'){ui.det=null;render();return;}
+  var tab=e.target.closest('[data-tab]');
+  if(tab){ui.tab=tab.getAttribute('data-tab');ui.more=false;window.scrollTo(0,0);render();return;}
+  var a=e.target.closest('[data-act]');
+  if(a){
+    var act=a.getAttribute('data-act'),id=a.getAttribute('data-id'),t=id&&find(id);
+    if(act==='accept'&&t){done(t,parseInt(a.getAttribute('data-r'),10));}
+    else if(act==='post'){publish();return;}
+    else if(act==='quick'){quick();return;}
+    else if(act==='talk'){talkPost();return;}
+    else if(act==='like'||act==='tdel'){talkAct(act,id);save();render();return;}
+    else if(act==='go'){ui.tab=id;render();return;}
+    else if(act==='menu'){ui.more=!ui.more;render();return;}
+    else if(act==='skill'){ui.tab='plaza';ui.cat='专属技能';ui.skill=id;ui.lim=30;ui.open=true;window.scrollTo(0,0);render();return;}
+    else if(act==='more'){ui.lim+=30;grid();return;}
+    else if(act==='catgo'){ui.tab='plaza';ui.cat=id;ui.skill='';ui.open=true;window.scrollTo(0,0);render();return;}
+    else if(act==='mediate'){mediate(id);return;}
+    else if(act==='dopen'){ui.det=id;if(id.charAt(0)==='x')ui.ex=id.slice(2);render();return;}
+    else if(act==='close'){ui.det=null;render();return;}
+    else if(act==='hmore'){ui.hl=(ui.hl||6)+6;render();return;}
+    else if(act==='checkin'){checkin();save();render();return;}
+    else if(act==='cknext'){if(!S.ck.last)S.ck.last=day();shiftDay(1);save();render();toast('已模拟过了一天，可以签到了');return;}
+    else if(act==='ckjump'){ckjump();save();render();return;}
+    else if(act==='tip'||act==='tipc'){doTip(act==='tip'?parseInt(id,10):parseInt(v('tipc'),10));return;}
+    else if(act==='search'){ui.tab='plaza';ui.q=id;ui.cat='';ui.skill='';ui.open=true;ui.lim=30;window.scrollTo(0,0);render();return;}
+    else if(act==='mt'){ui.mt=id;render();return;}
+    else if(act==='chat'){var tt=find(id);if(tt)openTaskChat(tt);return;}
+    else if(act==='csend'){csend(id);return;}
+    else if(act==='copych'||act==='savech'||act==='clearch'||act==='cinvite'){chAct(act,id,a);return;}
+    else if(act==='addfriend'){addFriend(id);return;}
+    else if(act==='fadd'){addFriend(v('fnm'));return;}
+    else if(act==='facc'||act==='fdec'){frAct(act,id);return;}
+    else if(act==='fchat'){openChat(chatFriend(id).id);return;}
+    else if(act==='elike'||act==='efav'||act==='eshare'||act==='eopen'||act==='ecm'||act==='edel'||act==='epost'||act==='emore'){expAct(act,id);return;}
+    else if(act==='reset'){if(confirm('清空后会恢复成初始演示数据，确定吗？')){S=seed();fix();save();ui.tab='plaza';render();}return;}
+    else if(act.indexOf('adm_')===0){adm[act](a);}
+    else if(t&&acts[act])acts[act](t,a);
+    save();render();return;
+  }
+  var d=e.target.closest('[data-toggle]');
+  if(d)d.closest('.card').classList.toggle('open');
+});
+document.addEventListener('input',function(e){
+  var f=e.target.getAttribute&&e.target.getAttribute('data-f');if(!f)return;
+  ui[f]=e.target.type==='checkbox'?e.target.checked:e.target.value;ui.lim=30;if(f==='eq'||f==='ecat'||f==='esort'||f==='efav')expGrid();else if(f==='sq')scamGrid();else if(f==='mq')mineBody();else grid();
+});
+function v(id){return document.getElementById(id).value.trim();}
+function publish(){
+  var t=v('pt'),ds=v('pds'),r=parseInt(v('pr'),10),d=parseInt(v('pd'),10);
+  if(!t){toast('请填写任务标题');return;}
+  if(ds.length<10){toast('任务描述至少写 10 个字，写清楚验收标准');return;}
+  if(!(r>=0)||!(d>=1)){toast('报酬和天数要填有效数字');return;}
+  if(banned()){toast('你的账号已被限制发布，详见规则与安全');return;}
+  if(BAD.test(t+ds)){warn('我','发布含违规词的任务');return;}
+  if(S.tasks.some(function(x){return x.poster==='我'&&x.t===t&&x.status==='open';})){toast('你已经发布过相同的任务，请勿重复发布');return;}
+  if(Date.now()-(S.lastPost||0)<8000){toast('发布太频繁，请稍后再试');return;}
+  var rtv=v('prt'),cat=v('pc');
+  if(rtv==='money'&&REF[cat]){var ref=REF[cat]*d;if(r<ref*0.3){toast('报酬过低：该类任务参考价约 ¥'+ref+'，低于 30% 不能发布');return;}if(r>ref*4&&!confirm('报酬远高于参考价（约 ¥'+ref+'）。高价诱导是常见骗局特征，确定继续吗？'))return;}
+  if(rtv==='money'&&r>=1000&&parseInt(v('pn'),10)<80){toast('金额较大，接单者最低信用至少设为 80');return;}
+  if(cat==='江湖救急'){if(credit()<100){toast('发布“江湖救急”需要你的信用 ≥ 100');return;}if(parseInt(v('pn'),10)<300){toast('江湖救急任务，接单者信用至少 300');return;}}
+  if(v('psk')==='__other'){var cs=v('psk2');if(cs.length<2){toast('请输入你的职业或技能名称（至少 2 个字）');return;}if(BAD.test(cs)){toast('名称含违规词，请修改');return;}}
+  S.lastPost=Date.now();
+  var sl=parseInt(v('psl'),10)||0;
+  S.tasks.unshift({id:'m'+Date.now(),t:t,cat:v('pc'),kind:v('pk'),skill:(v('psk')==='__other'?v('psk2'):v('psk')),req:v('prq'),rules:v('pru'),notes:v('pnt'),rt:v('prt'),rtext:v('prx'),scope:v('psc'),slots:sl>=2?sl:0,joined:0,dep:parseInt(v('pdp'),10)||0,reward:r,days:d,mode:v('pm'),loc:v('pl'),min:parseInt(v('pn'),10),poster:'我',pc:credit(),desc:ds,status:'open',taker:null,rating:0,ts:Date.now()});
+  save();ui.tab='mine';render();toast('发布成功');
+}
+render();
+setTimeout(function(){document.getElementById('splash').classList.add('off');},1300);
+document.getElementById('splash').addEventListener('click',function(){this.classList.add('off');});
+})();
+</script>
+</body>
+</html>
